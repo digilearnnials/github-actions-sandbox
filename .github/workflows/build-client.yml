@@ -1,0 +1,30 @@
+name: Build client
+on:
+  workflow_dispatch: {}
+jobs:
+    buildClient:
+      name: Build client
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - uses: actions/cache@v2
+          with:
+            path: Library
+            key: Library-WebGL
+            restore-keys: Library-
+        - uses: game-ci/unity-builder@v2
+          env:
+            UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+            UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+            UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          with:
+            targetPlatform: WebGL
+        - name: Deploy
+          run: |
+            git config --global user.name "${{ env.CI_COMMIT_AUTHOR}}"
+            git config --global user.email "${{ env.CI_COMMIT_EMAIL}}"
+            git clone ${{ env.REPOSITORY_URL }} deployment
+            copy build/WebGL deployment
+            git add .
+            git commit -m "Commit Test"
+            git push
