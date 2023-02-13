@@ -21,10 +21,10 @@ jobs:
             targetPlatform: WebGL
         - name: Deploy
           run: |
-            git config --global user.name "${{ env.CI_COMMIT_AUTHOR}}"
-            git config --global user.email "${{ env.CI_COMMIT_EMAIL}}"
-            git clone ${{ env.REPOSITORY_URL }} deployment
-            copy build/WebGL deployment
+            git config --global user.name "${{ vars.CI_COMMIT_AUTHOR}}"
+            git config --global user.email "${{ vars.CI_COMMIT_EMAIL}}"
+            git clone "${{ vars.REPOSITORY_URL }}" "deployment"
+            copy "build/WebGL" "deployment" /y
             git add .
             git commit -m "Commit Test"
             git push
