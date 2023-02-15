@@ -62,7 +62,7 @@ jobs:
 
         - name: Zip build for release
           run: |
-              cd build/WebGL
+              cd deployment
               zip -r "${{ vars.CLIENT_BUILD_NAME }} ${{ github.ref_name }}.zip" "${{ vars.CLIENT_BUILD_NAME }} ${{ github.ref_name }}"
         
         - name: Upload release
@@ -70,5 +70,5 @@ jobs:
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           with:
-            file: "build/WebGL/${{ vars.CLIENT_BUILD_NAME }} ${{ github.ref_name }}.zip"
+            file: "deployment/${{ vars.CLIENT_BUILD_NAME }} ${{ github.ref_name }}.zip"
             tags: true
