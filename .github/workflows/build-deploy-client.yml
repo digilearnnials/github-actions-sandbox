@@ -43,7 +43,8 @@ jobs:
         - name: Reset branch
           run: |
               cd deployment
-              if git rev-parse HEAD != ${{ vars.HARD_RESET_COMMIT_ID }} 
+              latestCommitId=$(git rev-parse HEAD)
+              if [ "$latestCommitId" != "${{ vars.HARD_RESET_COMMIT_ID }}" ]; 
               then
                 git reset --hard ${{ vars.HARD_RESET_COMMIT_ID }}
                 git push --force
