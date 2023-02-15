@@ -47,6 +47,8 @@ jobs:
         - name: Deploy
           run: |
               cd deployment
+              git reset --hard ${{ vars.HARD_RESET_COMMIT_ID }}
+              git push --force
               git add .
-              git commit -m "Deploy test"
+              git commit -m "Version ${{ github.ref_name }}"
               git push
