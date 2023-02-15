@@ -1,30 +1,67 @@
 name: Build client
+
 on:
   workflow_dispatch: {}
+
 jobs:
     buildClient:
       name: Build client
       runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v2
-        - uses: actions/cache@v2
+      steps:  
+        
+        - name: Checkout
+          uses: actions/checkout@v2
+        
+        - name: Cache
+          uses: actions/cache@v2
           with:
             path: Library
             key: Library-WebGL
-            restore-keys: Library-
-        - uses: game-ci/unity-builder@v2
+            restore-keys: Library-WebGL
+        
+        - name: Build
+          uses: game-ci/unity-builder@v2
           env:
             UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
             UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
             UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           with:
             targetPlatform: WebGL
+        
+        - name: Upload artifact
+          uses: actions/upload-artifact@v2
+          with:
+            name: Build-WebGL
+            path: build/WebGL
+    
+    deployClient:
+      name: Deploy client
+      needs: [buildClient]
+      runs-on: ubuntu-latest
+      steps:
+        
+        - name: Download artifact
+          uses: actions/download-artifact@v2
+          with:
+            name: Build-WebGL
+            path: ~/build/WebGL
+        
+        - name: Clone repository
+          run: |
+              git clone "${{ secrets.REPOSITORY_URL }}" ~/deployment
+        
+        - name: Copy build
+          run: |
+              cp -R ~/build/WebGL ~/deployment
+              cd ~/deployment/github-actions-sandbox-deployments
+        
+        - name: Configure git
+          run: |
+              git config --global user.name "${{ vars.CI_COMMIT_AUTHOR}}"
+              git config --global user.email "${{ vars.CI_COMMIT_EMAIL}}"
+        
         - name: Deploy
           run: |
-            git config --global user.name "${{ vars.CI_COMMIT_AUTHOR}}"
-            git config --global user.email "${{ vars.CI_COMMIT_EMAIL}}"
-            git clone "${{ secrets.REPOSITORY_URL }}" "deployment"
-            cp -R "/build/WebGL/" "/deployment/"
-            git add .
-            git commit -m "Commit Test"
-            git push
+              git add .
+              git commit -m "Deploy test"
+              git push
