@@ -1,0 +1,32 @@
+name: Clone & push test
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+    
+    cloneAndPush:
+      name: Clone & push
+      runs-on: ubuntu-latest
+      steps:
+        
+        - name: Clone repository
+          run: |
+              git clone "${{ secrets.REPOSITORY_URL }}" ~/deployment
+        
+        - name: Add test file
+          run: |
+              cd ~/deployment
+              touch test.txt
+        
+        - name: Configure git
+          run: |
+              git config --global user.name "${{ vars.CI_COMMIT_AUTHOR}}"
+              git config --global user.email "${{ vars.CI_COMMIT_EMAIL}}"
+        
+        - name: Deploy
+          run: |
+              cd ~/deployment
+              git add test.txt
+              git commit -m "Deploy test"
+              git push
