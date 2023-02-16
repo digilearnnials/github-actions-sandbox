@@ -9,13 +9,15 @@ env:
 
 jobs:
     buildAndDeployClient:
-      name: Build client
+      name: Build & deploy
       runs-on: ubuntu-latest
       steps:  
         
+        # Checkouts the current repository
         - name: Checkout
           uses: actions/checkout@v2
         
+        # Caches the Library folder for faster builds
         - name: Cache
           uses: actions/cache@v2
           with:
@@ -23,6 +25,7 @@ jobs:
             key: Library-WebGL
             restore-keys: Library-WebGL
         
+        # Builds the WebGL client using a given license
         - name: Build
           uses: game-ci/unity-builder@v2
           env:
@@ -34,15 +37,18 @@ jobs:
             targetPlatform: WebGL
             versioning: Tag
 
+        # Configures git with specific commit author and email
         - name: Configure git
           run: |
-              git config --global user.name "${{ vars.CI_COMMIT_AUTHOR}}"
-              git config --global user.email "${{ vars.CI_COMMIT_EMAIL}}"
+              git config --global user.name "${{ vars.CI_COMMIT_AUTHOR }}"
+              git config --global user.email "${{ vars.CI_COMMIT_EMAIL }}"
 
+        # Clones the external deployment repository
         - name: Clone repository
           run: |
               git clone "${{ secrets.REPOSITORY_URL }}" deployment
 
+        # Uses hard reset to return to first commit before pushing new build (if needed) due to size limit
         - name: Reset branch
           run: |
               cd deployment
@@ -53,10 +59,12 @@ jobs:
                 git push --force
               fi
         
+        # Copies the generated build to the repository folder
         - name: Copy build
           run: |
               cp -R "build/WebGL/${{ env.BUILD_FULL_NAME }}" deployment
         
+        # Commits & pushes the changes to the deployment repository
         - name: Deploy to repository
           run: |
               cd deployment
@@ -64,6 +72,7 @@ jobs:
               git commit -m "Version ${{ github.ref_name }}"
               git push
 
+        # Generates a zip with the build
         - name: Zip build for release
           id: zip_build_for_release
           run: |
@@ -74,6 +83,7 @@ jobs:
               zip -r "$zipName.zip" "${{ env.BUILD_FULL_NAME }}"
               echo "ZIP_NAME=$zipName" >> $GITHUB_OUTPUT 
         
+        # Uploads the zip file generated at the previous step as a GitHub release
         - name: Upload release
           uses: xresloader/upload-to-github-release@v1
           env:
