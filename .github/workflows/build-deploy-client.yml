@@ -30,7 +30,7 @@ jobs:
             UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
             UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           with:
-            buildName: "$BUILD_FULL_NAME"
+            buildName: "${{ env.BUILD_FULL_NAME }}"
             targetPlatform: WebGL
             versioning: Tag
 
@@ -55,7 +55,7 @@ jobs:
         
         - name: Copy build
           run: |
-              cp -R "build/WebGL/$BUILD_FULL_NAME" deployment
+              cp -R "build/WebGL/${{ env.BUILD_FULL_NAME }}" deployment
         
         - name: Deploy to repository
           run: |
@@ -67,13 +67,16 @@ jobs:
         - name: Zip build for release
           run: |
               cd deployment
-              zip -r "$BUILD_FULL_NAME.zip" "$BUILD_FULL_NAME"
+              oldStr=" "
+              newStr="_"
+              zipName=$(echo ${{ env.BUILD_FULL_NAME }} | sed "s/$oldStr/$newStr/g")
+              zip -r "$zipName.zip" "${{ env.BUILD_FULL_NAME }}"
         
         - name: Upload release
           uses: xresloader/upload-to-github-release@v1
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           with:
-            file: "deployment/$BUILD_FULL_NAME.zip"
+            file: "deployment/${{ env.BUILD_FULL_NAME }}.zip"
             tags: true
             draft: false
