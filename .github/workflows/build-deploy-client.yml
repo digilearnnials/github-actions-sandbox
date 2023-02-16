@@ -65,18 +65,20 @@ jobs:
               git push
 
         - name: Zip build for release
+          id: zip_build_for_release
           run: |
               cd deployment
               oldStr=" "
               newStr="_"
               zipName=$(echo ${{ env.BUILD_FULL_NAME }} | sed "s/$oldStr/$newStr/g")
               zip -r "$zipName.zip" "${{ env.BUILD_FULL_NAME }}"
+              echo "ZIP_NAME=$zipName" >> $GITHUB_OUTPUT 
         
         - name: Upload release
           uses: xresloader/upload-to-github-release@v1
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           with:
-            file: "deployment/${{ env.BUILD_FULL_NAME }}.zip"
+            file: "deployment/${{ steps.zip_build_for_release.outputs.ZIP_NAME }}.zip"
             tags: true
             draft: false
