@@ -27,13 +27,13 @@ jobs:
               if [ ${#versions[@]} > 1 ]
               then
                 currentVersion="${{ github.ref_name }}"
-                previousVersion=$versions[1]
+                previousVersion=${versions[1]}
                 readarray -d . -t currentNums <<< $currentVersion
                 readarray -d . -t previousNums <<< $previousVersion
-                if [ $currentNums[0] > $previousNums[0] ]
+                if [ ${currentNums[0]} > ${previousNums[0]} ]
                 then
                   environment=$"production"
-                elif [ $currentNums[1] > $previousNums[1] ]
+                elif [ ${currentNums[1]} > ${previousNums[1]} ]
                 then
                   environment=$"staging"
                 fi
