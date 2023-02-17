@@ -16,6 +16,29 @@ jobs:
         # Checkouts the current repository
         - name: Checkout
           uses: actions/checkout@v2
+
+        # Detects in which environment the build should run
+        - name: Detect environment
+          id: detect_environment
+          run: |
+              environment=$"development"
+              git fetch -a
+              versions=$(git tag --list --sort "-version:refname")
+              if [ ${#versions[@]} > 1 ]
+              then
+                currentVersion="${{ github.ref_name }}"
+                previousVersion=$versions[1]
+                readarray -d . -t currentNums <<< $currentVersion
+                readarray -d . -t previousNums <<< $previousVersion
+                if [ $currentNums[0] > $previousNums[0] ]
+                then
+                  environment=$"production"
+                elif [ $currentNums[1] > $previousNums[1] ]
+                then
+                  environment=$"staging"
+                fi
+              fi
+              echo "ENVIRONMENT=$environment" >> $GITHUB_OUTPUT 
         
         # Caches the Library folder for faster builds
         - name: Cache
@@ -36,6 +59,8 @@ jobs:
             buildName: "${{ env.BUILD_FULL_NAME }}"
             targetPlatform: WebGL
             versioning: Tag
+            buildMethod: Digi.EditorTools.BuildScript.Build
+            customParameters: -productType Client -environmentType ${{ steps.detect_environment.outputs.ENVIRONMENT }} -serverType Hosted
 
         # Configures git with specific commit author and email
         - name: Configure git
@@ -53,7 +78,7 @@ jobs:
           run: |
               cd deployment
               latestCommitId=$(git rev-parse HEAD)
-              if [ "$latestCommitId" != "${{ vars.HARD_RESET_COMMIT_ID }}" ]; 
+              if [ "$latestCommitId" != "${{ vars.HARD_RESET_COMMIT_ID }}" ]
               then
                 git reset --hard ${{ vars.HARD_RESET_COMMIT_ID }}
                 git push --force
