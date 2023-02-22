@@ -21,7 +21,7 @@ jobs:
         - name: Detect environment
           id: detect_environment
           run: |
-              environment=$"development"
+              environment="development"
               git fetch --tags
               versions=($(git tag --list --sort -version:refname --column))
               if (( ${#versions[@]} > 1 ))
@@ -32,10 +32,10 @@ jobs:
                 readarray -d . -t previousNums <<< $previousVersion
                 if (( ${currentNums[0]} > ${previousNums[0]} ))
                 then
-                  environment=$"production"
+                  environment="production"
                 elif (( ${currentNums[1]} > ${previousNums[1]} ))
                 then
-                  environment=$"staging"
+                  environment="staging"
                 fi
               fi
               echo "ENVIRONMENT=$environment" >> $GITHUB_OUTPUT 
@@ -77,17 +77,18 @@ jobs:
         - name: Reset branch
           run: |
               cd deployment
-              chekoutBranch=$"none"
+              checkoutBranch="none"
               case ${{ steps.detect_environment.outputs.ENVIRONMENT }} in
                 development)
                 checkoutBranch=${{ vars.DEPLOY_DEVELOPMENT_BRANCH }}
                 ;;
                 staging)
-                checkoutBranch=${{ vars.DEPLOY_STAGING_BRANCH }}
+                checkoutBranch="${{ vars.DEPLOY_STAGING_BRANCH }}"
                 ;;
                 production)
-                checkoutBranch=${{ vars.DEPLOY_PRODUCTION_BRANCH }}
+                checkoutBranch="${{ vars.DEPLOY_PRODUCTION_BRANCH }}"
                 ;;
+              esac
               git checkout $checkoutBranch
               latestCommitId=$(git rev-parse HEAD)
               if [ "$latestCommitId" != "${{ vars.HARD_RESET_COMMIT_ID }}" ]
