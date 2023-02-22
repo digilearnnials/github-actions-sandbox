@@ -77,6 +77,18 @@ jobs:
         - name: Reset branch
           run: |
               cd deployment
+              chekoutBranch=$"none"
+              case ${{ steps.detect_environment.outputs.ENVIRONMENT }} in
+                development)
+                checkoutBranch=${{ vars.DEPLOY_DEVELOPMENT_BRANCH }}
+                ;;
+                staging)
+                checkoutBranch=${{ vars.DEPLOY_STAGING_BRANCH }}
+                ;;
+                production)
+                checkoutBranch=${{ vars.DEPLOY_PRODUCTION_BRANCH }}
+                ;;
+              git checkout $checkoutBranch
               latestCommitId=$(git rev-parse HEAD)
               if [ "$latestCommitId" != "${{ vars.HARD_RESET_COMMIT_ID }}" ]
               then
