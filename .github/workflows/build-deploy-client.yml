@@ -9,6 +9,7 @@ env:
 
 jobs:
     detectEnvironment:
+      name: "Detect environment"
       uses: ./.github/workflows/detect-environment.yml
 
     buildAndDeployClient:

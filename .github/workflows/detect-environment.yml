@@ -8,7 +8,7 @@ on:
 
 jobs:
     detectEnvironment:
-      name: Detect environment
+      name: "Detect environment"
       runs-on: ubuntu-latest
       outputs:
         targetEnvironment: ${{ steps.detect_environment.outputs.targetEnvironment }}
@@ -25,8 +25,8 @@ jobs:
               versions=($(git tag --list --sort -version:refname --column))
               if (( ${#versions[@]} > 1 ))
               then
-                currentVersion=${versions[0]}
-                previousVersion=${versions[1]}
+                currentVersion="${{ github.ref_name }}"
+                previousVersion=${versions[0]}
                 readarray -d . -t currentNums <<< $currentVersion
                 readarray -d . -t previousNums <<< $previousVersion
                 if (( ${currentNums[0]} > ${previousNums[0]} ))
