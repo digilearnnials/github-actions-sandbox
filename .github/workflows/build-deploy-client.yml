@@ -21,6 +21,8 @@ jobs:
         # Checkouts the current repository
         - name: Checkout
           uses: actions/checkout@v2
+          with:
+            fetch-depth: 0
         
         # Caches the Library folder for faster builds
         - name: Cache
