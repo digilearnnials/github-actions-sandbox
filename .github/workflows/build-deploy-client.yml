@@ -28,7 +28,6 @@ jobs:
           with:
             path: Library
             key: Library-WebGL
-            restore-keys: Library-WebGL
         
         # Builds the WebGL client using a given license
         - name: Build
