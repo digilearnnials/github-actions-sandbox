@@ -1,0 +1,40 @@
+name: Detect Environment
+
+on:
+  workflow_call:
+    outputs:
+      targetEnvironment:
+        value: ${{ jobs.detectEnvironment.outputs.targetEnvironment }}
+
+jobs:
+    detectEnvironment:
+      name: Detect environment
+      runs-on: ubuntu-latest
+      outputs:
+        targetEnvironment: ${{ steps.detect_environment.outputs.targetEnvironment }}
+      
+      steps: 
+        - name: Checkout
+          uses: actions/checkout@v2
+
+        - name: Detect environment
+          id: detect_environment
+          run: |
+              environment="development"
+              git fetch --tags
+              versions=($(git tag --list --sort -version:refname --column))
+              if (( ${#versions[@]} > 1 ))
+              then
+                currentVersion="${versions[0]}"
+                previousVersion=${versions[1]}
+                readarray -d . -t currentNums <<< $currentVersion
+                readarray -d . -t previousNums <<< $previousVersion
+                if (( ${currentNums[0]} > ${previousNums[0]} ))
+                then
+                  environment="production"
+                elif (( ${currentNums[1]} > ${previousNums[1]} ))
+                then
+                  environment="staging"
+                fi
+              fi
+              echo "targetEnvironment=$environment" >> $GITHUB_OUTPUT 
