@@ -1,0 +1,58 @@
+name: Build & Deploy Server
+
+on:
+  push:
+    tags: "[0-9]+.[0-9]+.[0-9]+"
+
+env:
+  BUILD_FULL_NAME: "${{ vars.SERVER_BUILD_NAME }}"
+
+jobs:
+    detectEnvironment:
+      name: "Detect environment"
+      uses: ./.github/workflows/detect-environment.yml
+
+    buildAndDeployClient:
+      name: Build & deploy
+      runs-on: ubuntu-latest
+      needs: detectEnvironment
+      steps:  
+        
+        # Checkouts the current repository
+        - name: Checkout
+          uses: actions/checkout@v2
+          with:
+            fetch-depth: 0
+        
+        # Caches the Library folder for faster builds
+        - name: Cache
+          uses: actions/cache@v2
+          with:
+            path: Library
+            key: Library-StandaloneLinux64
+        
+        # Builds the Linux server using a given license
+        - name: Build
+          uses: game-ci/unity-builder@v2
+          env:
+            UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+            UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+            UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          with:
+            buildName: "${{ env.BUILD_FULL_NAME }}"
+            targetPlatform: StandaloneLinux64
+            versioning: Tag
+            buildMethod: Digi.EditorTools.BuildScript.Build
+            customParameters: -productType Server -environmentType ${{ needs.detectEnvironment.outputs.targetEnvironment }} -serverType Hosted
+
+        # Copies the generated build to the dockerfile folder
+        - name: Copy build
+          run: |
+              cp -R "build/StandaloneLinux64/${{ env.BUILD_FULL_NAME }}/." "Docker/bin"
+
+        # Builds and pushes a docker image to the target repository, using the version number as a tag
+        - name: Build & push docker image 
+          run: |
+            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} ${{ secrets.DOCKER_SERVER_URL }}
+            docker build -t "${{ secrets.DOCKER_SERVER_URL }}/${{ vars.DOCKER_IMAGE_NAME }}:${{ github.ref_name }}" .
+            docker push "${{ secrets.DOCKER_SERVER_URL }}/${{ vars.DOCKER_IMAGE_NAME }}:${{ github.ref_name }}"
