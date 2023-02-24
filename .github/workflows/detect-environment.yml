@@ -25,7 +25,7 @@ jobs:
               versions=($(git tag --list --sort -version:refname --column))
               if (( ${#versions[@]} > 1 ))
               then
-                currentVersion="${versions[0]}"
+                currentVersion=${versions[0]}
                 previousVersion=${versions[1]}
                 readarray -d . -t currentNums <<< $currentVersion
                 readarray -d . -t previousNums <<< $previousVersion
