@@ -5,14 +5,14 @@ on:
     tags: "[0-9]+.[0-9]+.[0-9]+"
 
 env:
-  BUILD_FULL_NAME: "${{ vars.SERVER_BUILD_NAME }}"
+  BUILD_TARGET: StandaloneLinux64
 
 jobs:
     detectEnvironment:
-      name: "Detect environment"
+      name: Detect environment
       uses: ./.github/workflows/detect-environment.yml
 
-    buildAndDeployClient:
+    buildAndDeployServer:
       name: Build & deploy
       runs-on: ubuntu-latest
       needs: detectEnvironment
@@ -29,7 +29,7 @@ jobs:
           uses: actions/cache@v2
           with:
             path: Library
-            key: Library-StandaloneLinux64
+            key: Library-${{ env.BUILD_TARGET }}
         
         # Builds the Linux server using a given license
         - name: Build
@@ -39,20 +39,32 @@ jobs:
             UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
             UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           with:
-            buildName: "${{ env.BUILD_FULL_NAME }}"
-            targetPlatform: StandaloneLinux64
+            buildName: "${{ vars.SERVER_BUILD_NAME }}"
+            targetPlatform: ${{ env.BUILD_TARGET }}
             versioning: Tag
             buildMethod: Digi.EditorTools.BuildScript.Build
             customParameters: -productType Server -environmentType ${{ needs.detectEnvironment.outputs.targetEnvironment }} -serverType Hosted
 
+        - name: Zip build
+          run: |
+              mkdir Artifact
+              cp -R "build/${{ env.BUILD_TARGET }}/"* Artifact
+              zip -r "${{ vars.SERVER_BUILD_NAME }}.zip" Artifact
+
+        - uses: actions/upload-artifact@v3
+          with:
+            name: "${{ vars.SERVER_BUILD_NAME }}"
+            path: "${{ vars.SERVER_BUILD_NAME }}.zip"
+
         # Copies the generated build to the dockerfile folder
         - name: Copy build
           run: |
-              cp -R "build/StandaloneLinux64/${{ env.BUILD_FULL_NAME }}/." "Docker/bin"
+              cp -R "build/${{ env.BUILD_TARGET }}/"* Docker/bin
 
         # Builds and pushes a docker image to the target repository, using the version number as a tag
         - name: Build & push docker image 
           run: |
+            cd "Docker"
             docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} ${{ secrets.DOCKER_SERVER_URL }}
             docker build -t "${{ secrets.DOCKER_SERVER_URL }}/${{ vars.DOCKER_IMAGE_NAME }}:${{ github.ref_name }}" .
             docker push "${{ secrets.DOCKER_SERVER_URL }}/${{ vars.DOCKER_IMAGE_NAME }}:${{ github.ref_name }}"

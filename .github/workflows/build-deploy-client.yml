@@ -6,10 +6,11 @@ on:
 
 env:
   BUILD_FULL_NAME: "${{ vars.CLIENT_BUILD_NAME }} ${{ github.ref_name }}"
+  BUILD_TARGET: WebGL
 
 jobs:
     detectEnvironment:
-      name: "Detect environment"
+      name: Detect environment
       uses: ./.github/workflows/detect-environment.yml
 
     buildAndDeployClient:
@@ -29,7 +30,7 @@ jobs:
           uses: actions/cache@v2
           with:
             path: Library
-            key: Library-WebGL
+            key: Library-${{ env.BUILD_TARGET }}
         
         # Builds the WebGL client using a given license
         - name: Build
@@ -40,7 +41,7 @@ jobs:
             UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           with:
             buildName: "${{ env.BUILD_FULL_NAME }}"
-            targetPlatform: WebGL
+            targetPlatform: ${{ env.BUILD_TARGET }}
             versioning: Tag
             buildMethod: Digi.EditorTools.BuildScript.Build
             customParameters: -productType Client -environmentType ${{ needs.detectEnvironment.outputs.targetEnvironment }} -serverType Hosted
@@ -83,7 +84,7 @@ jobs:
         # Copies the generated build to the repository folder
         - name: Copy build
           run: |
-              cp -R "build/WebGL/${{ env.BUILD_FULL_NAME }}" deployment
+              cp -R "build/${{ env.BUILD_TARGET }}/${{ env.BUILD_FULL_NAME }}/"* deployment
         
         # Commits & pushes the changes to the deployment repository
         - name: Deploy to repository
@@ -97,11 +98,10 @@ jobs:
         - name: Zip build for release
           id: zip_build_for_release
           run: |
-              cd deployment
               oldStr=" "
               newStr="_"
               zipName=$(echo ${{ env.BUILD_FULL_NAME }} | sed "s/$oldStr/$newStr/g")
-              zip -r "$zipName.zip" "${{ env.BUILD_FULL_NAME }}"
+              zip -r "$zipName.zip" deployment
               echo "ZIP_NAME=$zipName" >> $GITHUB_OUTPUT 
         
         # Uploads the zip file generated at the previous step as a GitHub release
