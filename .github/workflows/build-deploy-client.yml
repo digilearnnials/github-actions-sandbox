@@ -56,13 +56,21 @@ jobs:
         # Configures git with specific commit author and email
         - name: Configure git
           run: |
-              git config --global user.name "${{ vars.CI_COMMIT_AUTHOR }}"
-              git config --global user.email "${{ vars.CI_COMMIT_EMAIL }}"
+              git config --global user.name "${{ vars.DEPLOYMENT_REPO_COMMIT_AUTHOR }}"
+              git config --global user.email "${{ vars.DEPLOYMENT_REPO_COMMIT_EMAIL }}"
 
         # Clones the external deployment repository
         - name: Clone repository
           run: |
-              git clone "${{ secrets.REPOSITORY_URL }}" deployment
+              repositoryUrl="${{ vars.DEPLOYMENT_REPO_URL }}"
+              usernamePlaceholder="<username>"
+              actualUsername=${{ vars.DEPLOYMENT_REPO_USERNAME }}
+              repositoryUrl=$(echo $repositoryUrl | sed "s/$usernamePlaceholder/$actualUsername/g")
+              appPasswordPlaceholder="<app-password>"
+              actualAppPassword=${{ secrets.DEPLOYMENT_REPO_APP_PASSWORD }}
+              repositoryUrl=$(echo $repositoryUrl | sed "s/$appPasswordPlaceholder/$actualAppPassword/g")
+              echo $repositoryUrl
+              git clone $repositoryUrl deployment
 
         # Uses hard reset to return to first commit before pushing new build (if needed) due to size limit
         - name: Reset branch
@@ -71,20 +79,20 @@ jobs:
               checkoutBranch="none"
               case ${{ inputs.targetEnvironment }} in
                 development)
-                checkoutBranch=${{ vars.DEPLOY_DEVELOPMENT_BRANCH }}
+                checkoutBranch=${{ vars.DEPLOYMENT_REPO_DEVELOPMENT_BRANCH }}
                 ;;
                 staging)
-                checkoutBranch="${{ vars.DEPLOY_STAGING_BRANCH }}"
+                checkoutBranch="${{ vars.DEPLOYMENT_REPO_STAGING_BRANCH }}"
                 ;;
                 production)
-                checkoutBranch="${{ vars.DEPLOY_PRODUCTION_BRANCH }}"
+                checkoutBranch="${{ vars.DEPLOYMENT_REPO_PRODUCTION_BRANCH }}"
                 ;;
               esac
               git checkout $checkoutBranch
               latestCommitId=$(git rev-parse HEAD)
-              if [ "$latestCommitId" != "${{ vars.HARD_RESET_COMMIT_ID }}" ]
+              if [ "$latestCommitId" != "${{ vars.DEPLOYMENT_REPO_HARD_RESET_COMMIT_ID }}" ]
               then
-                git reset --hard ${{ vars.HARD_RESET_COMMIT_ID }}
+                git reset --hard ${{ vars.DEPLOYMENT_REPO_HARD_RESET_COMMIT_ID }}
                 git push --force
               fi
         
