@@ -14,9 +14,11 @@ jobs:
         targetEnvironment: ${{ steps.detect_environment.outputs.targetEnvironment }}
       
       steps: 
+        # Checkouts the current repository
         - name: Checkout
           uses: actions/checkout@v2
 
+        # Detects the target environment to output, according to the version number that changed from the last tag
         - name: Detect environment
           id: detect_environment
           run: |

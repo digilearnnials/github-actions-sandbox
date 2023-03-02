@@ -1,21 +1,32 @@
 name: Build & Deploy Server
 
 on:
-  push:
-    tags: "[0-9]+.[0-9]+.[0-9]+"
+  workflow_call:
+    inputs:
+      targetEnvironment:
+        required: true
+        type: string
+    secrets:
+      UNITY_LICENSE:
+        required: true
+      UNITY_EMAIL:
+        required: true
+      UNITY_PASSWORD:
+        required: true
+      DOCKER_USERNAME:
+        required: true
+      DOCKER_PASSWORD:
+        required: true
+      DOCKER_SERVER_URL:
+        required: true
 
 env:
   BUILD_TARGET: StandaloneLinux64
 
 jobs:
-    detectEnvironment:
-      name: Detect environment
-      uses: ./.github/workflows/detect-environment.yml
-
     buildAndDeployServer:
       name: Build & deploy
       runs-on: ubuntu-latest
-      needs: detectEnvironment
       steps:  
         
         # Checkouts the current repository
@@ -43,18 +54,7 @@ jobs:
             targetPlatform: ${{ env.BUILD_TARGET }}
             versioning: Tag
             buildMethod: Digi.EditorTools.BuildScript.Build
-            customParameters: -productType Server -environmentType ${{ needs.detectEnvironment.outputs.targetEnvironment }} -serverType Hosted
-
-        - name: Zip build
-          run: |
-              mkdir Artifact
-              cp -R "build/${{ env.BUILD_TARGET }}/"* Artifact
-              zip -r "${{ vars.SERVER_BUILD_NAME }}.zip" Artifact
-
-        - uses: actions/upload-artifact@v3
-          with:
-            name: "${{ vars.SERVER_BUILD_NAME }}"
-            path: "${{ vars.SERVER_BUILD_NAME }}.zip"
+            customParameters: -productType Server -environmentType ${{ inputs.targetEnvironment }} -serverType Hosted
 
         # Copies the generated build to the dockerfile folder
         - name: Copy build

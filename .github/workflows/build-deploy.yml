@@ -1,0 +1,26 @@
+name: Build & Deploy
+
+on:
+  push:
+    tags: "[0-9]+.[0-9]+.[0-9]+"
+
+jobs:
+    detectEnvironment:
+      name: Detect environment
+      uses: ./.github/workflows/detect-environment.yml
+
+    buildAndDeployClient:
+      name: Build & deploy client
+      needs: detectEnvironment 
+      uses: ./.github/workflows/build-deploy-client.yml
+      with:
+        targetEnvironment: ${{ needs.detectEnvironment.outputs.targetEnvironment }}
+      secrets: inherit
+    
+    buildAndDeployServer:
+      name: Build & deploy server
+      needs: detectEnvironment 
+      uses: ./.github/workflows/build-deploy-server.yml
+      with:
+        targetEnvironment: ${{ needs.detectEnvironment.outputs.targetEnvironment }}
+      secrets: inherit
