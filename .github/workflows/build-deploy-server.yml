@@ -6,19 +6,6 @@ on:
       targetEnvironment:
         required: true
         type: string
-    secrets:
-      UNITY_LICENSE:
-        required: true
-      UNITY_EMAIL:
-        required: true
-      UNITY_PASSWORD:
-        required: true
-      DOCKER_USERNAME:
-        required: true
-      DOCKER_PASSWORD:
-        required: true
-      DOCKER_SERVER_URL:
-        required: true
 
 env:
   BUILD_TARGET: StandaloneLinux64

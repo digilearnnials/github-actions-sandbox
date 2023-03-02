@@ -6,15 +6,6 @@ on:
       targetEnvironment:
         required: true
         type: string
-    secrets:
-      UNITY_LICENSE:
-        required: true
-      UNITY_EMAIL:
-        required: true
-      UNITY_PASSWORD:
-        required: true
-      REPOSITORY_URL:
-        required: true
 
 env:
   BUILD_FULL_NAME: "${{ vars.CLIENT_BUILD_NAME }} ${{ github.ref_name }}"
