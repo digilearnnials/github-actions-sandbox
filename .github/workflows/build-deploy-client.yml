@@ -117,6 +117,6 @@ jobs:
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           with:
-            file: "deployment/${{ steps.zip_build_for_release.outputs.ZIP_NAME }}.zip"
+            file: "${{ steps.zip_build_for_release.outputs.ZIP_NAME }}.zip"
             tags: true
             draft: false
