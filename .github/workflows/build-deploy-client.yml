@@ -81,11 +81,10 @@ jobs:
             VERSION_NUMBER: ${{ github.ref_name }}
         
         # Sends a Discord message to the appropriate builds channel
-        - name: Notify deployment
-          uses: appleboy/discord-action@master
+        - name: Discord notification
+          env:
+            DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+            DISCORD_USERNAME: GitHub CI Bot
+          uses: Ilshidur/action-discord@master
           with:
-            webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-            webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-            color: "#18f412"
-            username: "GitHub CI Bot"
-            message: "@here, the version ${{ github.ref_name }} of ${{ vars.CLIENT_BUILD_NAME }} is ready for testing!"
+            args: "The version ${{ github.ref_name }} is ready for testing!"
