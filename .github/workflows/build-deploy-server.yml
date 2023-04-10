@@ -1,11 +1,7 @@
 name: Build & Deploy Server
 
 on:
-  workflow_call:
-    inputs:
-      targetEnvironment:
-        required: true
-        type: string
+  workflow_call: {}
 
 env:
   BUILD_TARGET: StandaloneLinux64
@@ -18,16 +14,23 @@ jobs:
         
         # Checkouts the current repository
         - name: Checkout
-          uses: actions/checkout@v2
+          uses: actions/checkout@v3
           with:
             fetch-depth: 0
         
         # Caches the Library folder for faster builds
         - name: Cache
-          uses: actions/cache@v2
+          uses: actions/cache@v3
           with:
             path: Library
             key: Library-${{ env.BUILD_TARGET }}
+
+        # Detects in which environemnt the build should be deployed
+        - name: Detect environment
+          id: detectEnvironment
+          run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/detect-environment.sh
+          env:
+            GITHUB_REF_NAME: ${{ github.ref_name }}
         
         # Builds the Linux server using a given license
         - name: Build
@@ -40,18 +43,16 @@ jobs:
             buildName: "${{ vars.SERVER_BUILD_NAME }}"
             targetPlatform: ${{ env.BUILD_TARGET }}
             versioning: Tag
-            buildMethod: Digi.EditorTools.BuildScript.Build
+            buildMethod: NotMaev.EditorTools.BuildScript.Build
             customParameters: -productType Server -environmentType ${{ inputs.targetEnvironment }} -serverType Hosted
 
-        # Copies the generated build to the dockerfile folder
-        - name: Copy build
-          run: |
-              cp -R "build/${{ env.BUILD_TARGET }}/"* Docker/bin
-
-        # Builds and pushes a docker image to the target repository, using the version number as a tag
+        # Builds the Linux server using a given license
         - name: Build & push docker image 
-          run: |
-            cd "Docker"
-            docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} ${{ secrets.DOCKER_SERVER_URL }}
-            docker build -t "${{ secrets.DOCKER_SERVER_URL }}/${{ vars.DOCKER_IMAGE_NAME }}:${{ github.ref_name }}" .
-            docker push "${{ secrets.DOCKER_SERVER_URL }}/${{ vars.DOCKER_IMAGE_NAME }}:${{ github.ref_name }}"
+          run: bash ${GITHUB_WORKSPACE}/.github/scripts/playfab/build-docker-image.sh
+          env:
+            BUILD_TARGET: ${{ env.BUILD_TARGET }}
+            DOCKER_SERVER_URL: ${{ secrets.DOCKER_SERVER_URL }}
+            DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+            DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+            DOCKER_IMAGE_NAME: ${{ vars.DOCKER_IMAGE_NAME }}
+            TAG_NAME: ${{ github.ref_name }}

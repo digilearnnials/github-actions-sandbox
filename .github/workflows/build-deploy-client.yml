@@ -1,11 +1,7 @@
 name: Build & Deploy Client
 
 on:
-  workflow_call:
-    inputs:
-      targetEnvironment:
-        required: true
-        type: string
+  workflow_call: {}
 
 env:
   BUILD_FULL_NAME: "${{ vars.CLIENT_BUILD_NAME }} ${{ github.ref_name }}"
@@ -15,20 +11,27 @@ jobs:
     buildAndDeployClient:
       name: Build & deploy
       runs-on: ubuntu-latest
-      steps:  
+      steps:
         
         # Checkouts the current repository
         - name: Checkout
-          uses: actions/checkout@v2
+          uses: actions/checkout@v3
           with:
             fetch-depth: 0
         
         # Caches the Library folder for faster builds
         - name: Cache
-          uses: actions/cache@v2
+          uses: actions/cache@v3
           with:
             path: Library
             key: Library-${{ env.BUILD_TARGET }}
+
+        # Detects in which environemnt the build should be deployed
+        - name: Detect environment
+          id: detectEnvironment
+          run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/detect-environment.sh
+          env:
+            GITHUB_REF_NAME: ${{ github.ref_name }}
         
         # Builds the WebGL client using a given license
         - name: Build
@@ -41,81 +44,38 @@ jobs:
             buildName: "${{ env.BUILD_FULL_NAME }}"
             targetPlatform: ${{ env.BUILD_TARGET }}
             versioning: Tag
-            buildMethod: Digi.EditorTools.BuildScript.Build
-            customParameters: -productType Client -environmentType ${{ inputs.targetEnvironment }} -serverType Hosted
+            buildMethod: NotMaev.EditorTools.BuildScript.Build
+            customParameters: -productType Client -environmentType ${{ steps.detectEnvironment.outputs.targetEnvironment }} -serverType Hosted
 
         # Configures git with specific commit author and email
         - name: Configure git
-          run: |
-              git config --global user.name "${{ vars.DEPLOYMENT_REPO_COMMIT_AUTHOR }}"
-              git config --global user.email "${{ vars.DEPLOYMENT_REPO_COMMIT_EMAIL }}"
+          run: bash ${GITHUB_WORKSPACE}/.github/scripts/deployment-repository/configure-git.sh
+          env:
+            DEPLOYMENT_REPO_COMMIT_AUTHOR: ${{ vars.DEPLOYMENT_REPO_COMMIT_AUTHOR }}
+            DEPLOYMENT_REPO_COMMIT_EMAIL: ${{ vars.DEPLOYMENT_REPO_COMMIT_EMAIL }}
 
         # Clones the external deployment repository
         - name: Clone repository
-          run: |
-              repositoryUrl="${{ vars.DEPLOYMENT_REPO_URL }}"
-              usernamePlaceholder="<username>"
-              actualUsername=${{ vars.DEPLOYMENT_REPO_USERNAME }}
-              repositoryUrl=$(echo $repositoryUrl | sed "s/$usernamePlaceholder/$actualUsername/g")
-              appPasswordPlaceholder="<app-password>"
-              actualAppPassword=${{ secrets.DEPLOYMENT_REPO_APP_PASSWORD }}
-              repositoryUrl=$(echo $repositoryUrl | sed "s/$appPasswordPlaceholder/$actualAppPassword/g")
-              echo $repositoryUrl
-              git clone $repositoryUrl deployment
+          run: bash ${GITHUB_WORKSPACE}/.github/scripts/deployment-repository/clone-deployment-repository.sh
+          env:
+            DEPLOYMENT_REPO_URL: ${{ vars.DEPLOYMENT_REPO_URL }}
+            DEPLOYMENT_REPO_USERNAME: ${{ vars.DEPLOYMENT_REPO_USERNAME }}
+            DEPLOYMENT_REPO_APP_PASSWORD: ${{ secrets.DEPLOYMENT_REPO_APP_PASSWORD }}
 
         # Uses hard reset to return to first commit before pushing new build (if needed) due to size limit
-        - name: Reset branch
-          run: |
-              cd deployment
-              checkoutBranch="none"
-              case ${{ inputs.targetEnvironment }} in
-                development)
-                checkoutBranch=${{ vars.DEPLOYMENT_REPO_DEVELOPMENT_BRANCH }}
-                ;;
-                staging)
-                checkoutBranch="${{ vars.DEPLOYMENT_REPO_STAGING_BRANCH }}"
-                ;;
-                production)
-                checkoutBranch="${{ vars.DEPLOYMENT_REPO_PRODUCTION_BRANCH }}"
-                ;;
-              esac
-              git checkout $checkoutBranch
-              latestCommitId=$(git rev-parse HEAD)
-              if [ "$latestCommitId" != "${{ vars.DEPLOYMENT_REPO_HARD_RESET_COMMIT_ID }}" ]
-              then
-                git reset --hard ${{ vars.DEPLOYMENT_REPO_HARD_RESET_COMMIT_ID }}
-                git push --force
-              fi
-        
-        # Copies the generated build to the repository folder
-        - name: Copy build
-          run: |
-              cp -R "build/${{ env.BUILD_TARGET }}/${{ env.BUILD_FULL_NAME }}/"* deployment
-        
-        # Commits & pushes the changes to the deployment repository
-        - name: Deploy to repository
-          run: |
-              cd deployment
-              git add .
-              git commit -m "Version ${{ github.ref_name }}"
-              git push
-
-        # Generates a zip with the build
-        - name: Zip build for release
-          id: zip_build_for_release
-          run: |
-              oldStr=" "
-              newStr="_"
-              zipName=$(echo ${{ env.BUILD_FULL_NAME }} | sed "s/$oldStr/$newStr/g")
-              zip -r "$zipName.zip" deployment
-              echo "ZIP_NAME=$zipName" >> $GITHUB_OUTPUT 
-        
-        # Uploads the zip file generated at the previous step as a GitHub release
-        - name: Upload release
-          uses: xresloader/upload-to-github-release@v1
+        - name: Hard reset deployment branch
+          run: bash ${GITHUB_WORKSPACE}/.github/scripts/deployment-repository/hard-reset-deployment-branch.sh
           env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          with:
-            file: "${{ steps.zip_build_for_release.outputs.ZIP_NAME }}.zip"
-            tags: true
-            draft: false
+            DEPLOYMENT_REPO_DEVELOPMENT_BRANCH: ${{ vars.DEPLOYMENT_REPO_DEVELOPMENT_BRANCH }}
+            DEPLOYMENT_REPO_STAGING_BRANCH: ${{ vars.DEPLOYMENT_REPO_STAGING_BRANCH }}
+            DEPLOYMENT_REPO_PRODUCTION_BRANCH: ${{ vars.DEPLOYMENT_REPO_PRODUCTION_BRANCH }}
+            DEPLOYMENT_REPO_HARD_RESET_COMMIT_ID: ${{ vars.DEPLOYMENT_REPO_HARD_RESET_COMMIT_ID }}
+            TARGET_ENVIRONMENT: ${{ steps.detectEnvironment.outputs.targetEnvironment }}
+        
+        # Copies the build, commits & pushes the changes to the deployment repository
+        - name: Deploy to repository
+          run: bash ${GITHUB_WORKSPACE}/.github/scripts/deployment-repository/deploy-to-repository.sh
+          env:
+            BUILD_TARGET: ${{ env.BUILD_TARGET }}
+            BUILD_FULL_NAME: ${{ env.BUILD_FULL_NAME }}
+            VERSION_NUMBER: ${{ github.ref_name }}
