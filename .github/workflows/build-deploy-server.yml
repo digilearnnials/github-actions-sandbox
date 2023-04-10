@@ -43,7 +43,7 @@ jobs:
             buildName: "${{ vars.SERVER_BUILD_NAME }}"
             targetPlatform: ${{ env.BUILD_TARGET }}
             versioning: Tag
-            buildMethod: NotMaev.EditorTools.BuildScript.Build
+            buildMethod: Digi.EditorTools.BuildScript.Build
             customParameters: -productType Server -environmentType ${{ inputs.targetEnvironment }} -serverType Hosted
 
         # Builds the Linux server using a given license

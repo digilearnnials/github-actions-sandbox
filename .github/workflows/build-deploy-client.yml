@@ -44,7 +44,7 @@ jobs:
             buildName: "${{ env.BUILD_FULL_NAME }}"
             targetPlatform: ${{ env.BUILD_TARGET }}
             versioning: Tag
-            buildMethod: NotMaev.EditorTools.BuildScript.Build
+            buildMethod: Digi.EditorTools.BuildScript.Build
             customParameters: -productType Client -environmentType ${{ steps.detectEnvironment.outputs.targetEnvironment }} -serverType Hosted
 
         # Configures git with specific commit author and email
