@@ -84,7 +84,8 @@ jobs:
         - name: Discord notification
           env:
             DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-            DISCORD_USERNAME: GitHub CI Bot
+            DISCORD_USERNAME: ${{ vars.DISCORD_USERNAME }}
+            DISCORD_AVATAR: ${{ vars.DISCORD_AVATAR_URL }}
           uses: Ilshidur/action-discord@master
           with:
-            args: "The version ${{ github.ref_name }} is ready for testing!"
+            args: "The **${{ steps.detectEnvironment.outputs.targetEnvironment }}** version **${{ github.ref_name }}** is ready for testing!"
