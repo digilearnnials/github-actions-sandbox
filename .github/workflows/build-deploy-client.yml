@@ -98,4 +98,4 @@ jobs:
             DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
           uses: Ilshidur/action-discord@master
           with:
-            args: ${{ getNotificationMessage.outputs.notificationMessage }}
+            args: ${{ steps.getNotificationMessage.outputs.notificationMessage }}

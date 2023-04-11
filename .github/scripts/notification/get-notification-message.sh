@@ -2,7 +2,6 @@ message=$NOTIFICATION_MESSAGE
 
 environmentPlaceholder="<environment>"
 versionPlaceholder="<version>"
-buildUrlPlaceholder="<build-url>"
 
 buildUrl="none"
 
@@ -20,6 +19,8 @@ esac
 
 message=$(echo $message | sed "s/$environmentPlaceholder/$TARGET_ENVIRONMENT/g")
 message=$(echo $message | sed "s/$versionPlaceholder/$VERSION_NAME/g")
-message=$(echo $message | sed "s/$buildUrlPlaceholder/$buildUrl/g")
+message+=" $buildUrl"
+
+echo $message
 
 echo "notificationMessage=$message" >> $GITHUB_OUTPUT
