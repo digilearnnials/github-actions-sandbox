@@ -1,0 +1,27 @@
+{
+    "BuildName": "<build-name>",
+	"MultiplayerServerCountPerVm": 4,
+	"Ports":
+	[
+		{
+			"Name": "game_server",
+			"Num": 30000,
+			"Protocol": "TCP"
+		}
+	],
+	"RegionConfigurations":
+	[
+		{
+			"Region": "EastUs",
+			"MaxServers": 1,
+			"StandbyServers": 1
+		}
+	],
+	"ContainerFlavor": "CustomLinux",
+	"ContainerImageReference":
+	{
+		"ImageName": "not_maev_server_test",
+		"tag": "<tag>"
+	},
+	"VmSize": "Standard_D2as_v4"
+}

@@ -44,9 +44,9 @@ jobs:
             targetPlatform: ${{ env.BUILD_TARGET }}
             versioning: Tag
             buildMethod: Digi.EditorTools.BuildScript.Build
-            customParameters: -productType Server -environmentType ${{ inputs.targetEnvironment }} -serverType Hosted
+            customParameters: -productType Server -environmentType ${{ steps.detectEnvironment.outputs.targetEnvironment }} -serverType Hosted
 
-        # Builds the Linux server using a given license
+        # Builds & pushes a docker image with the server build to PlayFab's container registry
         - name: Build & push docker image 
           run: bash ${GITHUB_WORKSPACE}/.github/scripts/playfab/build-docker-image.sh
           env:
@@ -56,3 +56,15 @@ jobs:
             DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
             DOCKER_IMAGE_NAME: ${{ vars.DOCKER_IMAGE_NAME }}
             TAG_NAME: ${{ github.ref_name }}
+        
+        # Creates a PlayFab release with the pushed image & updates the active build for the environment
+        - name: Create & upload PlayFab build
+          run: bash ${GITHUB_WORKSPACE}/.github/scripts/playfab/create-upload-build.sh
+          env:
+            SERVER_BUILD_NAME: ${{ vars.SERVER_BUILD_NAME }}
+            PLAYFAB_SECRET_KEY: ${{ secrets.PLAYFAB_SECRET_KEY }}
+            PLAYFAB_ALIAS_ID_DEVELOPMENT: ${{ vars.PLAYFAB_ALIAS_ID_DEVELOPMENT }}
+            PLAYFAB_ALIAS_ID_STAGING: ${{ vars.PLAYFAB_ALIAS_ID_STAGING }}
+            PLAYFAB_ALIAS_ID_PRODUCTION: ${{ vars.PLAYFAB_ALIAS_ID_PRODUCTION }}
+            TARGET_ENVIRONMENT: ${{ steps.detectEnvironment.outputs.targetEnvironment }}
+            VERSION_NAME: ${{ github.ref_name }}

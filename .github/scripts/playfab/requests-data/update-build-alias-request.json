@@ -1,0 +1,13 @@
+{
+	"AliasId": "<alias-id>",
+	"AliasName": "<alias-name>",
+	"BuildSelectionCriteria":
+	[
+		{
+			"BuildWeightDistribution": 
+			{
+				"<build-id>": 1
+			}
+		}
+	]
+}
