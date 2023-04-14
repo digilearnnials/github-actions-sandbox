@@ -30,7 +30,7 @@ jobs:
           id: detectEnvironment
           run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/detect-environment.sh
           env:
-            GITHUB_REF_NAME: ${{ github.ref_name }}
+            VERSION_NAME: ${{ github.ref_name }}
         
         # Builds the Linux server using a given license
         - name: Build
