@@ -69,6 +69,8 @@ createBuildResponse=$(curl -s -X POST "$PLAYFAB_BASE_URL/MultiplayerServer/Creat
 					       -H "X-EntityToken: $entityToken" \
 					       -d "$createBuildRequest")
 
+echo "CREATE BUILD RESPONSE: $createBuildResponse"
+
 aliasId=$(getBuildAliasId)
 buildId=$(getFieldValueFromJson $createBuildResponse "BuildId")
 
@@ -83,9 +85,9 @@ updateBuildAliasRequest=$(echo $updateBuildAliasRequest | sed "s/$aliasIdPlaceho
 updateBuildAliasRequest=$(echo $updateBuildAliasRequest | sed "s/$aliasNamePlaceholder/$TARGET_ENVIRONMENT/g")
 updateBuildAliasRequest=$(echo $updateBuildAliasRequest | sed "s/$buildIdPlaceholder/$buildId/g")
 
-echo $updateBuildAliasRequest
+updateBuildAliasResponse=$(curl -s -X POST "$PLAYFAB_BASE_URL/MultiplayerServer/UpdateBuildAlias" \
+						   -H "Content-Type: application/json" \
+						   -H "X-EntityToken: $entityToken" \
+						   -d "$updateBuildAliasRequest")
 
-curl -s -X POST "$PLAYFAB_BASE_URL/MultiplayerServer/UpdateBuildAlias" \
-	 -H "Content-Type: application/json" \
-	 -H "X-EntityToken: $entityToken" \
-	 -d "$updateBuildAliasRequest"
+echo "UPDATE BUILD ALIAS RESPONSE: $updateBuildAliasResponse"
