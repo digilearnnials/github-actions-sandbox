@@ -79,23 +79,3 @@ jobs:
             BUILD_TARGET: ${{ env.BUILD_TARGET }}
             BUILD_FULL_NAME: ${{ env.BUILD_FULL_NAME }}
             VERSION_NUMBER: ${{ github.ref_name }}
-
-        # Formats a notification message for Discord
-        - name: Get notification message
-          id: getNotificationMessage
-          run: bash ${GITHUB_WORKSPACE}/.github/scripts/notification/get-notification-message.sh
-          env:
-            NOTIFICATION_MESSAGE: ${{ vars.DISCORD_NOTIFICATION_MESSAGE }}
-            TARGET_ENVIRONMENT: ${{ steps.detectEnvironment.outputs.targetEnvironment }}
-            VERSION_NAME: ${{ github.ref_name }}
-            DEVELOPMENT_BUILD_URL: ${{ vars.DEVELOPMENT_BUILD_URL }}
-            STAGING_BUILD_URL: ${{ vars.STAGING_BUILD_URL }}
-            PRODUCTION_BUILD_URL: ${{ vars.PRODUCTION_BUILD_URL }}
-        
-        # Sends a Discord message to the appropriate builds channel
-        - name: Discord notification
-          env:
-            DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          uses: Ilshidur/action-discord@master
-          with:
-            args: ${{ steps.getNotificationMessage.outputs.notificationMessage }}

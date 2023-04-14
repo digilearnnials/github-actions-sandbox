@@ -14,3 +14,9 @@ jobs:
       name: Build & deploy server
       uses: ./.github/workflows/build-deploy-server.yml
       secrets: inherit
+    
+    notifyBuildUpload:
+      name: Notify build upload
+      uses: ./.github/workflows/notify-build-upload.yml
+      needs: [ buildAndDeployClient, buildAndDeployServer ]
+      secrets: inherit
