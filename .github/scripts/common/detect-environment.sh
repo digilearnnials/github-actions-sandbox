@@ -2,10 +2,10 @@
 
 environment=""
 
-git fetch --tags
-
 currentVersion=$VERSION_NAME
-currentVersionParts=$("$currentVersion" | tr "-")
+currentVersionParts=()
+
+readarray -d - -t currentVersionParts <<< "$currentVersion"
 
 if [ ${#currentVersionParts[@]} == 1 ]
 then
