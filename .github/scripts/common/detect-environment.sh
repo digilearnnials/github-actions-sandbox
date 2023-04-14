@@ -1,26 +1,20 @@
-environment="development"
+#!/bin/bash
+
+environment=""
 
 git fetch --tags
 
-versions=($(git tag --list --sort -version:refname --column))
+currentVersion=$VERSION_NAME
+currentVersionParts=$("$currentVersion" | tr "-")
 
-if (( ${#versions[@]} > 1 ))
+if [ ${#currentVersionParts[@]} == 1 ]
 then
-    currentVersion=$GITHUB_REF_NAME
-    previousVersion=${versions[0]}
-    currentNums=()
-    previousNums=()
-    
-    readarray -d . -t currentNums <<< $currentVersion
-    readarray -d . -t previousNums <<< $previousVersion
-    
-    if (( ${currentNums[0]} > ${previousNums[0]} ))
-    then
-        environment="production"
-    elif (( ${currentNums[1]} > ${previousNums[1]} ))
-    then
-        environment="staging"
-    fi
+    environment="production"
+elif [ "${currentVersionParts[1]}" == "test" ]
+then
+    environment="staging"
+else
+    environment="development"
 fi
 
-echo "targetEnvironment=$environment" >> $GITHUB_OUTPUT
+echo "targetEnvironment=$environment" >> "$GITHUB_OUTPUT"
