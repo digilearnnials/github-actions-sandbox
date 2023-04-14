@@ -1,3 +1,5 @@
+#!/bin/bash
+
 message=$NOTIFICATION_MESSAGE
 
 environmentPlaceholder="<environment>"
@@ -17,10 +19,10 @@ case $TARGET_ENVIRONMENT in
     ;;
 esac
 
-message=$(echo $message | sed "s/$environmentPlaceholder/$TARGET_ENVIRONMENT/g")
-message=$(echo $message | sed "s/$versionPlaceholder/$VERSION_NAME/g")
+message=$("$message" | sed "s/$environmentPlaceholder/$TARGET_ENVIRONMENT/g")
+message=$("$message" | sed "s/$versionPlaceholder/$VERSION_NAME/g")
 message+=" $buildUrl"
 
-echo $message
+echo "$message"
 
-echo "notificationMessage=$message" >> $GITHUB_OUTPUT
+echo "notificationMessage=$message" >> "$GITHUB_OUTPUT"

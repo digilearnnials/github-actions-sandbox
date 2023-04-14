@@ -1,4 +1,6 @@
-cd deployment
+#!/bin/bash
+
+cd deployment || exit
 
 checkoutBranch="none"
 
@@ -14,12 +16,12 @@ case $TARGET_ENVIRONMENT in
     ;;
 esac
 
-git checkout $checkoutBranch
+git checkout "$checkoutBranch"
 
 latestCommitId="$(git rev-parse HEAD)"
 
-if [ $latestCommitId != $DEPLOYMENT_REPO_HARD_RESET_COMMIT_ID ]
+if [ "$latestCommitId" != "$DEPLOYMENT_REPO_HARD_RESET_COMMIT_ID" ]
 then
-    git reset --hard $DEPLOYMENT_REPO_HARD_RESET_COMMIT_ID
+    git reset --hard "$DEPLOYMENT_REPO_HARD_RESET_COMMIT_ID"
     git push --force
 fi
