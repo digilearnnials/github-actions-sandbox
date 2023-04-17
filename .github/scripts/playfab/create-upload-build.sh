@@ -62,9 +62,11 @@ createBuildRequest=$(getJsonData "$createBuildRequestFile")
 buildName="$SERVER_BUILD_NAME""_""$VERSION_NAME"
 
 buildNamePlaceholder="<build-name>"
+imageNamePlaceholder="<image-name>"
 tagPlaceholder="<tag>"
 
 createBuildRequest=${createBuildRequest//$buildNamePlaceholder/$buildName}
+createBuildRequest=${createBuildRequest//$imageNamePlaceholder/$IMAGE_NAME}
 createBuildRequest=${createBuildRequest//$tagPlaceholder/$VERSION_NAME}
 
 createBuildResponse=$(curl -s -X POST "$PLAYFAB_BASE_URL/MultiplayerServer/CreateBuildWithCustomContainer" \

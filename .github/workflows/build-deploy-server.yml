@@ -68,4 +68,5 @@ jobs:
             PLAYFAB_ALIAS_ID_STAGING: ${{ vars.PLAYFAB_ALIAS_ID_STAGING }}
             PLAYFAB_ALIAS_ID_PRODUCTION: ${{ vars.PLAYFAB_ALIAS_ID_PRODUCTION }}
             TARGET_ENVIRONMENT: ${{ steps.detectEnvironment.outputs.targetEnvironment }}
+            IMAGE_NAME: ${{ vars.DOCKER_IMAGE_NAME }}
             VERSION_NAME: ${{ github.ref_name }}

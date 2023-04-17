@@ -20,7 +20,7 @@
 	"ContainerFlavor": "CustomLinux",
 	"ContainerImageReference":
 	{
-		"ImageName": "not_maev_server_test",
+		"ImageName": "<image-name>",
 		"tag": "<tag>"
 	},
 	"VmSize": "Standard_D2as_v4"
