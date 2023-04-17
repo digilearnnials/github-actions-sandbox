@@ -59,7 +59,7 @@ entityToken=$(getFieldValueFromJson "$tokenResponse" "EntityToken")
 createBuildRequestFile="$basePath/requests-data/create-build-with-custom-container.json"
 createBuildRequest=$(getJsonData "$createBuildRequestFile")
 
-buildName="$SERVER_BUILD_NAME""_""$TARGET_ENVIRONMENT""_""$VERSION_NAME"
+buildName="$SERVER_BUILD_NAME""_""$VERSION_NAME"
 
 buildNamePlaceholder="<build-name>"
 tagPlaceholder="<tag>"
