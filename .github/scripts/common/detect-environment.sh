@@ -2,19 +2,21 @@
 
 environment=""
 
-currentVersionParts=()
+currentVersionParts=($(echo "$VERSION_NAME" | tr '-' '\n'))
 
-readarray -d - -t currentVersionParts <<< "$VERSION_NAME"
+versionLastPart=${currentVersionParts[1]}
 
-if [ "${currentVersionParts[1]}" == "dev" ]
+if [ "$versionLastPart" = "dev" ]
 then
     environment="development"
-elif [ "${currentVersionParts[1]}" == "test" ]
+elif [ "$versionLastPart" = "test" ]
 then
     environment="staging"
-elif [ "${currentVersionParts[1]}" == "prod" ]
+elif [ "$versionLastPart" = "prod" ]
 then
     environment="production"
 fi
+
+echo "$environment"
 
 echo "targetEnvironment=$environment" >> "$GITHUB_OUTPUT"
