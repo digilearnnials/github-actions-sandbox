@@ -5,7 +5,7 @@ repositoryUrl=$DEPLOYMENT_REPO_URL
 usernamePlaceholder="<username>"
 appPasswordPlaceholder="<app-password>"
 
-repositoryUrl=$($repositoryUrl | sed "s/$usernamePlaceholder/$DEPLOYMENT_REPO_USERNAME/g")
-repositoryUrl=$($repositoryUrl | sed "s/$appPasswordPlaceholder/$DEPLOYMENT_REPO_APP_PASSWORD/g")
+repositoryUrl=${repositoryUrl//$usernamePlaceholder/$DEPLOYMENT_REPO_USERNAME}
+repositoryUrl=${repositoryUrl//$appPasswordPlaceholder/$DEPLOYMENT_REPO_APP_PASSWORD}
 
 git clone "$repositoryUrl" deployment

@@ -19,8 +19,9 @@ case $TARGET_ENVIRONMENT in
     ;;
 esac
 
-message=$("$message" | sed "s/$environmentPlaceholder/$TARGET_ENVIRONMENT/g")
-message=$("$message" | sed "s/$versionPlaceholder/$VERSION_NAME/g")
+message=${message//$environmentPlaceholder/$TARGET_ENVIRONMENT}
+message=${message//$versionPlaceholder/$VERSION_NAME}
+
 message+=" $buildUrl"
 
 echo "$message"

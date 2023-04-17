@@ -7,7 +7,7 @@ function getJsonData ()
 	requestFile="$1"
 
 	while read -r line; do
-		line=$($line | sed "s/\n/ /g")
+		line=${line//"\n"/" "}
 		requestData+=$line
 	done < "$requestFile"
 
@@ -23,7 +23,7 @@ function getFieldValueFromJson ()
 	json="$1"
 	fieldName="$2"
 
-	fieldValue=$($json | sed -E -n 's/.*'"$fieldName"'":"([^"]+).+/\1/p')
+	fieldValue=$(echo "$json" | sed -E -n 's/.*'"$fieldName"'":"([^"]+).+/\1/p')
 
 	echo "$fieldValue"
 }
@@ -64,8 +64,8 @@ buildName="$SERVER_BUILD_NAME""_""$TARGET_ENVIRONMENT""_""$VERSION_NAME"
 buildNamePlaceholder="<build-name>"
 tagPlaceholder="<tag>"
 
-createBuildRequest=$($createBuildRequest | sed "s/$buildNamePlaceholder/$buildName/g")
-createBuildRequest=$($createBuildRequest | sed "s/$tagPlaceholder/$VERSION_NAME/g")
+createBuildRequest=${createBuildRequest//$buildNamePlaceholder/$buildName}
+createBuildRequest=${createBuildRequest//$tagPlaceholder/$VERSION_NAME}
 
 createBuildResponse=$(curl -s -X POST "$PLAYFAB_BASE_URL/MultiplayerServer/CreateBuildWithCustomContainer" \
 					       -H "Content-Type: application/json" \
@@ -84,9 +84,9 @@ aliasIdPlaceholder="<alias-id>"
 aliasNamePlaceholder="<alias-name>"
 buildIdPlaceholder="<build-id>"
 
-updateBuildAliasRequest=$($updateBuildAliasRequest | sed "s/$aliasIdPlaceholder/$aliasId/g")
-updateBuildAliasRequest=$($updateBuildAliasRequest | sed "s/$aliasNamePlaceholder/$TARGET_ENVIRONMENT/g")
-updateBuildAliasRequest=$($updateBuildAliasRequest | sed "s/$buildIdPlaceholder/$buildId/g")
+updateBuildAliasRequest=${updateBuildAliasRequest//$aliasIdPlaceholder/$aliasId}
+updateBuildAliasRequest=${updateBuildAliasRequest//$aliasNamePlaceholder/$TARGET_ENVIRONMENT}
+updateBuildAliasRequest=${updateBuildAliasRequest//$buildIdPlaceholder/$buildId}
 
 updateBuildAliasResponse=$(curl -s -X POST "$PLAYFAB_BASE_URL/MultiplayerServer/UpdateBuildAlias" \
 						   -H "Content-Type: application/json" \
