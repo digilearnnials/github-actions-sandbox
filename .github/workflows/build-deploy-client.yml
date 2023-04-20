@@ -79,3 +79,12 @@ jobs:
             BUILD_TARGET: ${{ env.BUILD_TARGET }}
             BUILD_FULL_NAME: ${{ env.BUILD_FULL_NAME }}
             VERSION_NUMBER: ${{ github.ref_name }}
+
+        # Uploads the build folder to Google Drive
+        - name: Upload to Google Drive
+          uses: Jodebu/upload-to-drive@master
+          with:
+            target: "build/${{ env.BUILD_TARGET }}/${{ env.BUILD_FULL_NAME }}"
+            name: "${{ env.BUILD_FULL_NAME }}"
+            credentials: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
+            folder: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
