@@ -1,0 +1,25 @@
+name: Upload to Google Drive Test
+
+on:
+  workflow_dispatch: {}
+
+env:
+  TEST_FILE_NAME: "Test.txt"
+
+jobs:
+  uploadToDriveTest:
+    name: Upload to Drive test
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Create sample file
+        run: |
+          touch ${{ env.TEST_FILE_NAME }}
+          echo "This is a sample text file." > ${{ env.TEST_FILE_NAME }}
+      
+      - name: Upload to Google Drive
+        uses: Jodebu/upload-to-drive@master
+        with:
+          target: ${{ env.TEST_FILE_NAME }}
+          credentials: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
+          folder: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
