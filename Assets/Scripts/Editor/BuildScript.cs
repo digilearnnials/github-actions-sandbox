@@ -191,7 +191,7 @@ namespace Digi.EditorTools
             }
         }
 
-        private static void Build (BuildTarget buildTarget, StandaloneBuildSubtarget standaloneBuildSubtarget, string filePath)
+        private static void ExecuteBuild (BuildTarget buildTarget, StandaloneBuildSubtarget standaloneBuildSubtarget, string filePath)
         {
             string[] scenes = EditorBuildSettings.scenes.Where(scene => scene.enabled).Select(s => s.path).ToArray();
             
@@ -263,7 +263,7 @@ namespace Digi.EditorTools
             ConfigureBuildTarget(buildTarget, options);
             ConfigureProductOptions(options);
 
-            Build(buildTarget, standaloneBuildSubtarget, options["customBuildPath"]);
+            ExecuteBuild(buildTarget, standaloneBuildSubtarget, options["customBuildPath"]);
         }
     }
 }
