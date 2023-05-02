@@ -11,95 +11,6 @@ namespace Digi.EditorTools
         private static readonly string Eol = Environment.NewLine;
         private static readonly string[] Secrets = { "androidKeystorePass", "androidKeyaliasName", "androidKeyaliasPass" };
 
-        
-        public static void Build ()
-        {
-            // Gather values from args
-            Dictionary<string, string> options = GetValidatedOptions();
-
-            // Set version for this build
-            PlayerSettings.bundleVersion = options["buildVersion"];
-            PlayerSettings.macOS.buildNumber = options["buildVersion"];
-            PlayerSettings.Android.bundleVersionCode = int.Parse(options["androidVersionCode"]);
-
-            // Apply build target
-            BuildTarget buildTarget = (BuildTarget) Enum.Parse(typeof(BuildTarget), options["buildTarget"]);
-            
-            switch (buildTarget)
-            {
-                case BuildTarget.Android:
-                    EditorUserBuildSettings.buildAppBundle = options["customBuildPath"].EndsWith(".aab");
-                    if (options.TryGetValue("androidKeystoreName", out string keystoreName) &&
-                        !string.IsNullOrEmpty(keystoreName))
-                    {
-                      PlayerSettings.Android.useCustomKeystore = true;
-                      PlayerSettings.Android.keystoreName = keystoreName;
-                    }
-                    if (options.TryGetValue("androidKeystorePass", out string keystorePass) &&
-                        !string.IsNullOrEmpty(keystorePass))
-                        PlayerSettings.Android.keystorePass = keystorePass;
-                    if (options.TryGetValue("androidKeyaliasName", out string keyaliasName) &&
-                        !string.IsNullOrEmpty(keyaliasName))
-                        PlayerSettings.Android.keyaliasName = keyaliasName;
-                    if (options.TryGetValue("androidKeyaliasPass", out string keyaliasPass) &&
-                        !string.IsNullOrEmpty(keyaliasPass))
-                        PlayerSettings.Android.keyaliasPass = keyaliasPass;
-                    if (options.TryGetValue("androidTargetSdkVersion", out string androidTargetSdkVersion) &&
-                        !string.IsNullOrEmpty(androidTargetSdkVersion))
-                    {
-                        AndroidSdkVersions targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
-                        
-                        try
-                        {
-                            targetSdkVersion =
-                                (AndroidSdkVersions) Enum.Parse(typeof(AndroidSdkVersions), androidTargetSdkVersion);
-                        }
-                        catch
-                        {
-                            UnityEngine.Debug.Log("Failed to parse androidTargetSdkVersion! Fallback to AndroidApiLevelAuto");
-                        }
-
-                        PlayerSettings.Android.targetSdkVersion = targetSdkVersion;
-                    }
-                    break;
-                    
-                case BuildTarget.StandaloneOSX:
-                    PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.Mono2x);
-                    break;
-            }
-
-            ProductType productType = options["productType"] switch
-            {
-                "Client" => ProductType.Client,
-                "Server" => ProductType.Server,
-                _ => ProductType.Server
-            };
-
-            EnvironmentType environmentType = options["environmentType"] switch
-            {
-                "Development" => EnvironmentType.Development,
-                "Staging" => EnvironmentType.Staging,
-                "Production" => EnvironmentType.Production,
-                _ => EnvironmentType.Development
-            };
-            
-            ServerType serverType = options["serverType"] switch
-            {
-                "Hosted" => ServerType.Hosted,
-                "Local" => ServerType.Local,
-                _ => ServerType.Hosted
-            };
-
-            BuildConfigurator.SetProductType(productType);
-            BuildConfigurator.SetEnvironmentType(environmentType);
-            BuildConfigurator.SetServerType(serverType);
-
-            StandaloneBuildSubtarget standaloneBuildSubtarget = (productType == ProductType.Server) ? StandaloneBuildSubtarget.Server : 
-                                                                                                      StandaloneBuildSubtarget.Player;
-
-            // Custom build
-            Build(buildTarget, standaloneBuildSubtarget, options["customBuildPath"]);
-        }
 
         private static Dictionary<string, string> GetValidatedOptions ()
         {
@@ -118,9 +29,7 @@ namespace Digi.EditorTools
             }
 
             if (!Enum.IsDefined(typeof(BuildTarget), buildTarget ?? string.Empty))
-            {
                 EditorApplication.Exit(121);
-            }
 
             if (!validatedOptions.TryGetValue("customBuildPath", out string _))
             {
@@ -162,9 +71,99 @@ namespace Digi.EditorTools
             return validatedOptions;
         }
 
+        private static void ConfigureVersion (Dictionary<string, string> options)
+        {
+            PlayerSettings.bundleVersion = options["buildVersion"];
+            PlayerSettings.macOS.buildNumber = options["buildVersion"];
+            PlayerSettings.Android.bundleVersionCode = int.Parse(options["androidVersionCode"]);
+        }
+
+        private static void ConfigureSplashScreen (bool useSplash = true)
+        {
+            if (useSplash)
+                PlayerSettings.SplashScreen.showUnityLogo = false;
+            else
+                PlayerSettings.SplashScreen.show = false;
+        }
+
+        private static void ConfigureBuildTarget (BuildTarget buildTarget, Dictionary<string, string> options)
+        {
+            switch (buildTarget)
+            {
+                case BuildTarget.Android:
+                    EditorUserBuildSettings.buildAppBundle = options["customBuildPath"].EndsWith(".aab");
+                    
+                    if (options.TryGetValue("androidKeystoreName", out string keystoreName) && !string.IsNullOrEmpty(keystoreName))
+                    {
+                        PlayerSettings.Android.useCustomKeystore = true;
+                        PlayerSettings.Android.keystoreName = keystoreName;
+                    }
+                    
+                    if (options.TryGetValue("androidKeystorePass", out string keystorePass) && !string.IsNullOrEmpty(keystorePass))
+                        PlayerSettings.Android.keystorePass = keystorePass;
+                    
+                    if (options.TryGetValue("androidKeyaliasName", out string keyaliasName) && !string.IsNullOrEmpty(keyaliasName))
+                        PlayerSettings.Android.keyaliasName = keyaliasName;
+                    
+                    if (options.TryGetValue("androidKeyaliasPass", out string keyaliasPass) && !string.IsNullOrEmpty(keyaliasPass))
+                        PlayerSettings.Android.keyaliasPass = keyaliasPass;
+                    
+                    if (options.TryGetValue("androidTargetSdkVersion", out string androidTargetSdkVersion) && !string.IsNullOrEmpty(androidTargetSdkVersion))
+                    {
+                        AndroidSdkVersions targetSdkVersion = AndroidSdkVersions.AndroidApiLevelAuto;
+                        
+                        try
+                        {
+                            targetSdkVersion = (AndroidSdkVersions)Enum.Parse(typeof(AndroidSdkVersions), androidTargetSdkVersion);
+                        }
+                        catch
+                        {
+                            UnityEngine.Debug.Log("Failed to parse androidTargetSdkVersion! Fallback to AndroidApiLevelAuto");
+                        }
+
+                        PlayerSettings.Android.targetSdkVersion = targetSdkVersion;
+                    }
+                    break;
+                    
+                case BuildTarget.StandaloneOSX:
+                    PlayerSettings.SetScriptingBackend(BuildTargetGroup.Standalone, ScriptingImplementation.Mono2x);
+                    break;
+            }
+        }
+
+        private static void ConfigureProductOptions (Dictionary<string, string> options)
+        {
+            ProductType productType = options["productType"] switch
+            {
+                "Client" => ProductType.Client,
+                "Server" => ProductType.Server,
+                _ => ProductType.Server
+            };
+
+            EnvironmentType environmentType = options["environmentType"] switch
+            {
+                "Development" => EnvironmentType.Development,
+                "Staging" => EnvironmentType.Staging,
+                "Production" => EnvironmentType.Production,
+                _ => EnvironmentType.Development
+            };
+            
+            ServerType serverType = options["serverType"] switch
+            {
+                "Hosted" => ServerType.Hosted,
+                "Local" => ServerType.Local,
+                _ => ServerType.Hosted
+            };
+
+            BuildConfigurator.SetProductType(productType);
+            BuildConfigurator.SetEnvironmentType(environmentType);
+            BuildConfigurator.SetServerType(serverType);
+        }
+
         private static void ParseCommandLineArguments (out Dictionary<string, string> providedArguments)
         {
             providedArguments = new Dictionary<string, string>();
+            
             string[] args = Environment.GetCommandLineArgs();
 
             Console.WriteLine(
@@ -175,7 +174,6 @@ namespace Digi.EditorTools
                 $"{Eol}"
             );
 
-            // Extract flags with optional values
             for (int current = 0, next = 1; current < args.Length; current++, next++)
             {                
                 if (!args[current].StartsWith("-")) 
@@ -183,13 +181,11 @@ namespace Digi.EditorTools
                 
                 string flag = args[current].TrimStart('-');
 
-                // Parse optional value
                 bool flagHasValue = next < args.Length && !args[next].StartsWith("-");
                 string value = flagHasValue ? args[next].TrimStart('-') : "";
                 bool secret = Secrets.Contains(flag);
                 string displayValue = secret ? "*HIDDEN*" : "\"" + value + "\"";
 
-                // Assign
                 Console.WriteLine($"Found flag \"{flag}\" with value {displayValue}.");
                 providedArguments.Add(flag, value);
             }
@@ -254,6 +250,20 @@ namespace Digi.EditorTools
                     EditorApplication.Exit(103);
                     break;
             }
+        }
+
+        public static void Build ()
+        {
+            Dictionary<string, string> options = GetValidatedOptions();
+            BuildTarget buildTarget = (BuildTarget)Enum.Parse(typeof(BuildTarget), options["buildTarget"]);
+            StandaloneBuildSubtarget standaloneBuildSubtarget = (options["productType"] == "Server")? StandaloneBuildSubtarget.Server : StandaloneBuildSubtarget.Player;
+
+            ConfigureVersion(options);
+            ConfigureSplashScreen();
+            ConfigureBuildTarget(buildTarget, options);
+            ConfigureProductOptions(options);
+
+            Build(buildTarget, standaloneBuildSubtarget, options["customBuildPath"]);
         }
     }
 }
