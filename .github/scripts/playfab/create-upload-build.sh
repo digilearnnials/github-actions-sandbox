@@ -33,13 +33,13 @@ function getBuildAliasId ()
 	buidAliasId="" 
 
 	case $TARGET_ENVIRONMENT in
-		development)
+		Development)
 		buidAliasId=$PLAYFAB_ALIAS_ID_DEVELOPMENT
 		;;
-		staging)
+		Staging)
 		buidAliasId=$PLAYFAB_ALIAS_ID_STAGING
 		;;
-		production)
+		Production)
 		buidAliasId=$PLAYFAB_ALIAS_ID_PRODUCTION
 		;;
 	esac

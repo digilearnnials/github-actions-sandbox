@@ -5,13 +5,13 @@ cd deployment || exit
 checkoutBranch="none"
 
 case $TARGET_ENVIRONMENT in
-    development)
+    Development)
     checkoutBranch=$DEPLOYMENT_REPO_DEVELOPMENT_BRANCH
     ;;
-    staging)
+    Staging)
     checkoutBranch=$DEPLOYMENT_REPO_STAGING_BRANCH
     ;;
-    production)
+    Production)
     checkoutBranch=$DEPLOYMENT_REPO_PRODUCTION_BRANCH
     ;;
 esac

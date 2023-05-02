@@ -8,13 +8,13 @@ versionLastPart=${currentVersionParts[1]}
 
 if [ "$versionLastPart" = "dev" ]
 then
-    environment="development"
+    environment="Development"
 elif [ "$versionLastPart" = "test" ]
 then
-    environment="staging"
+    environment="Staging"
 elif [ "$versionLastPart" = "prod" ]
 then
-    environment="production"
+    environment="Production"
 fi
 
 echo "$environment"

@@ -8,13 +8,13 @@ versionPlaceholder="<version>"
 buildUrl="none"
 
 case $TARGET_ENVIRONMENT in
-    development)
+    Development)
     buildUrl=$DEVELOPMENT_BUILD_URL
     ;;
-    staging)
+    Staging)
     buildUrl=$STAGING_BUILD_URL
     ;;
-    production)
+    Production)
     buildUrl=$PRODUCTION_BUILD_URL
     ;;
 esac
