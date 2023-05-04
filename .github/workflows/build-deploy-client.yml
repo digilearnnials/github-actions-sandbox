@@ -18,13 +18,14 @@ jobs:
           uses: actions/checkout@v3
           with:
             fetch-depth: 0
-        
+
         # Caches the Library folder for faster builds
         - name: Cache
           uses: actions/cache@v3
           with:
             path: Library
-            key: Library-${{ env.BUILD_TARGET }}
+            key: Library-${{ env.BUILD_TARGET }}-${{ github.ref_name }}
+            restore-keys: Library-${{ env.BUILD_TARGET }}
 
         # Detects in which environemnt the build should be deployed
         - name: Detect environment
