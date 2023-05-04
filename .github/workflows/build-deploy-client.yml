@@ -79,12 +79,21 @@ jobs:
             BUILD_TARGET: ${{ env.BUILD_TARGET }}
             BUILD_FULL_NAME: ${{ env.BUILD_FULL_NAME }}
             VERSION_NUMBER: ${{ github.ref_name }}
+        
+        # Zips the build
+        - name: Zip build
+          id: zipBuild
+          run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/zip-build.sh
+          env:
+            BUILD_TARGET: ${{ env.BUILD_TARGET }}
+            BUILD_FULL_NAME: ${{ env.BUILD_FULL_NAME }}
 
-        # Uploads the build folder to Google Drive
+        # Uploads the build zip to Google Drive
         - name: Upload to Google Drive
-          uses: Jodebu/upload-to-drive@master
+          uses: adityak74/google-drive-upload-git-action@main
           with:
-            target: "build/${{ env.BUILD_TARGET }}/${{ env.BUILD_FULL_NAME }}"
-            name: "${{ env.BUILD_FULL_NAME }}"
             credentials: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
-            folder: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+            folderId: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+            filename: release/${{ steps.zipBuild.outputs.targetZipName }}.zip
+            name: ${{ steps.zipBuild.outputs.targetZipName }}.zip
+            overwrite: "true"
