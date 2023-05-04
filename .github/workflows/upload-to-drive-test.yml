@@ -18,8 +18,10 @@ jobs:
           echo "This is a sample text file." > ${{ env.TEST_FILE_NAME }}
       
       - name: Upload to Google Drive
-        uses: Jodebu/upload-to-drive@master
+        uses: adityak74/google-drive-upload-git-action@main
         with:
-          target: ${{ env.TEST_FILE_NAME }}
           credentials: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
-          folder: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+          filename: ${{ env.TEST_FILE_NAME }}
+          folderId: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+          name: ${{ env.TEST_FILE_NAME }} # optional string
+          overwrite: "true" # optional boolean
