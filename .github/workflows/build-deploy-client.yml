@@ -17,7 +17,8 @@ jobs:
         - name: Checkout
           uses: actions/checkout@v3
           with:
-            fetch-depth: 0
+            ref: dev
+            fetch-depth: 1
 
         # Caches the Library folder for faster builds
         - name: Cache
