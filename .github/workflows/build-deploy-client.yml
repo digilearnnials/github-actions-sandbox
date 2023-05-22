@@ -27,7 +27,7 @@ jobs:
             key: Library-${{ env.BUILD_TARGET }}
             restore-keys: Library-
 
-        # Detects in which environemnt the build should be deployed
+        # Detects in which environment the build should be deployed
         - name: Detect environment
           id: detectEnvironment
           run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/detect-environment.sh
