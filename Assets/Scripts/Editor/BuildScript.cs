@@ -14,7 +14,12 @@ namespace Digi.EditorTools
 
         private static Dictionary<string, string> GetValidatedOptions ()
         {
-            ParseCommandLineArguments(out Dictionary<string, string> validatedOptions);
+            const string defaultCustomBuildName = "TestBuild";
+            const string defaultProductType = "Client";
+            const string defaultEnvironmentType = "Development";
+            const string defaultServerType = "Local";
+            
+            Dictionary<string, string> validatedOptions = ParseCommandLineArguments();
 
             if (!validatedOptions.TryGetValue("projectPath", out string _))
             {
@@ -29,43 +34,39 @@ namespace Digi.EditorTools
             }
 
             if (!Enum.IsDefined(typeof(BuildTarget), buildTarget ?? string.Empty))
+            {
+                Console.WriteLine($"Invalid build target provided ({buildTarget})");
                 EditorApplication.Exit(121);
+            }
 
             if (!validatedOptions.TryGetValue("customBuildPath", out string _))
             {
                 Console.WriteLine("Missing argument -customBuildPath");
                 EditorApplication.Exit(130);
             }
+            
+            if (!validatedOptions.TryGetValue("customBuildName", out string customBuildName) || string.IsNullOrEmpty(customBuildName))
+            {
+                Console.WriteLine($"Missing or invalid argument -customBuildName; defaulting to {defaultCustomBuildName}.");
+                validatedOptions.Add("customBuildName", defaultCustomBuildName);
+            }
 
             if (!validatedOptions.TryGetValue("productType", out string _))
             {
-                Console.WriteLine("Missing argument -productType");
-                EditorApplication.Exit(140);
+                Console.WriteLine($"Missing argument -productType; defaulting to {defaultProductType}.");
+                validatedOptions.Add("productType", defaultProductType);
             }
             
             if (!validatedOptions.TryGetValue("environmentType", out string _))
             {
-                Console.WriteLine("Missing argument -environmentType");
-                EditorApplication.Exit(141);
+                Console.WriteLine($"Missing argument -environmentType; defaulting to {defaultEnvironmentType}.");
+                validatedOptions.Add("environmentType", defaultEnvironmentType);
             }
             
             if (!validatedOptions.TryGetValue("serverType", out string _))
             {
-                Console.WriteLine("Missing argument -serverType");
-                EditorApplication.Exit(142);
-            }
-
-            const string defaultCustomBuildName = "TestBuild";
-            
-            if (!validatedOptions.TryGetValue("customBuildName", out string customBuildName))
-            {
-                Console.WriteLine($"Missing argument -customBuildName, defaulting to {defaultCustomBuildName}.");
-                validatedOptions.Add("customBuildName", defaultCustomBuildName);
-            }
-            else if (customBuildName == "")
-            {
-                Console.WriteLine($"Invalid argument -customBuildName, defaulting to {defaultCustomBuildName}.");
-                validatedOptions.Add("customBuildName", defaultCustomBuildName);
+                Console.WriteLine($"Missing argument -serverType; defaulting to {defaultServerType}.");
+                validatedOptions.Add("Server Type", defaultServerType);
             }
 
             return validatedOptions;
@@ -160,9 +161,9 @@ namespace Digi.EditorTools
             BuildConfigurator.SetServerType(serverType);
         }
 
-        private static void ParseCommandLineArguments (out Dictionary<string, string> providedArguments)
+        private static Dictionary<string, string> ParseCommandLineArguments ()
         {
-            providedArguments = new Dictionary<string, string>();
+            Dictionary<string, string> providedArguments = new Dictionary<string, string>();
             
             string[] args = Environment.GetCommandLineArgs();
 
@@ -189,6 +190,8 @@ namespace Digi.EditorTools
                 Console.WriteLine($"Found flag \"{flag}\" with value {displayValue}.");
                 providedArguments.Add(flag, value);
             }
+
+            return providedArguments;
         }
 
         private static void ExecuteBuild (BuildTarget buildTarget, StandaloneBuildSubtarget standaloneBuildSubtarget, string filePath)
@@ -256,7 +259,7 @@ namespace Digi.EditorTools
         {
             Dictionary<string, string> options = GetValidatedOptions();
             BuildTarget buildTarget = (BuildTarget)Enum.Parse(typeof(BuildTarget), options["buildTarget"]);
-            StandaloneBuildSubtarget standaloneBuildSubtarget = (options["productType"] == "Server")? StandaloneBuildSubtarget.Server : StandaloneBuildSubtarget.Player;
+            StandaloneBuildSubtarget standaloneBuildSubtarget = (options["productType"] == "Server") ? StandaloneBuildSubtarget.Server : StandaloneBuildSubtarget.Player;
 
             ConfigureVersion(options);
             ConfigureSplashScreen();
