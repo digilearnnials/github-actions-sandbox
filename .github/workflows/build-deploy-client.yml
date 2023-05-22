@@ -19,14 +19,6 @@ jobs:
           with:
             fetch-depth: 1
 
-        # Caches the Library folder for faster builds
-        - name: Cache
-          uses: actions/cache@v3
-          with:
-            path: Library
-            key: Library-${{ env.BUILD_TARGET }}
-            restore-keys: Library-
-
         # Detects in which environment the build should be deployed
         - name: Detect environment
           id: detectEnvironment
@@ -46,7 +38,15 @@ jobs:
             targetPlatform: ${{ env.BUILD_TARGET }}
             versioning: Tag
             buildMethod: Digi.EditorTools.BuildScript.Build
-            customParameters: -productType Client -environmentType ${{ steps.detectEnvironment.outputs.targetEnvironment }} -serverType Hosted
+            customParameters: -adb2 
+                              -enableCacheServer
+                              -cacheServerEndpoint ${{ vars.CACHE_SERVER_ENDPOINT }}
+                              -cacheServerNamespacePrefix ${{ vars.CLIENT_BUILD_NAME }}
+                              -cacheServerEnableDownload true
+                              -cacheServerEnableUpload false
+                              -productType Client
+                              -environmentType ${{ steps.detectEnvironment.outputs.targetEnvironment }}
+                              -serverType Hosted
 
         # Configures git with specific commit author and email
         - name: Configure git

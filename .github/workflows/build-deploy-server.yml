@@ -17,14 +17,6 @@ jobs:
           uses: actions/checkout@v3
           with:
             fetch-depth: 1
-               
-        # Caches the Library folder for faster builds
-        - name: Cache
-          uses: actions/cache@v3
-          with:
-            path: Library
-            key: Library-${{ env.BUILD_TARGET }}
-            restore-keys: Library-
 
         # Detects in which environment the build should be deployed
         - name: Detect environment
@@ -45,7 +37,15 @@ jobs:
             targetPlatform: ${{ env.BUILD_TARGET }}
             versioning: Tag
             buildMethod: Digi.EditorTools.BuildScript.Build
-            customParameters: -productType Server -environmentType ${{ steps.detectEnvironment.outputs.targetEnvironment }} -serverType Hosted
+            customParameters: -adb2 
+                              -enableCacheServer
+                              -cacheServerEndpoint ${{ vars.CACHE_SERVER_ENDPOINT }}
+                              -cacheServerNamespacePrefix ${{ vars.SERVER_BUILD_NAME }}
+                              -cacheServerEnableDownload true
+                              -cacheServerEnableUpload false
+                              -productType Server 
+                              -environmentType ${{ steps.detectEnvironment.outputs.targetEnvironment }} 
+                              -serverType Hosted
 
         # Builds & pushes a docker image with the server build to PlayFab's container registry
         - name: Build & push docker image 
