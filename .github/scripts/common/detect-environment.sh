@@ -1,22 +1,23 @@
 #!/bin/bash
 
-environment=""
+targetEnvironment=""
 
 currentVersionParts=($(echo "$VERSION_NAME" | tr '-' '\n'))
 
 versionLastPart=${currentVersionParts[1]}
 
-if [ "$versionLastPart" = "dev" ]
-then
-    environment="Development"
-elif [ "$versionLastPart" = "test" ]
-then
-    environment="Staging"
-elif [ "$versionLastPart" = "prod" ]
-then
-    environment="Production"
-fi
+case $versionLastPart in
+    dev)
+    targetEnvironment="Development"
+    ;;
+    test)
+    targetEnvironment="Staging"
+    ;;
+    prod)
+    targetEnvironment="Production"
+    ;;
+    *)
+    targetEnvironment="Development"
+esac
 
-echo "$environment"
-
-echo "targetEnvironment=$environment" >> "$GITHUB_OUTPUT"
+echo $targetEnvironment >> "$GITHUB_OUTPUT"
