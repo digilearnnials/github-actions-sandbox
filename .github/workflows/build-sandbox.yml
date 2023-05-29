@@ -31,8 +31,7 @@ jobs:
             buildName: "${{ env.BUILD_FULL_NAME }}"
             targetPlatform: ${{ env.BUILD_TARGET }}
             versioning: None
-            # Set the build mehod wrong on purpose to test the skipping of post build placeholders
-            buildMethod: Digi.EditorTools.BuildScript.WrongBuildMethod
+            buildMethod: Digi.EditorTools.BuildScript.Build
             customParameters: -productType Client 
                               -environmentType Development
                               -serverType Hosted
@@ -46,9 +45,9 @@ jobs:
         - name: Post build placeholder 1
           if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded }} == true
           run: |
-            echo "The job continues..."
+            echo "The job continues successfully..."
         
         - name: Post build placeholder 2
-          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded }} == true
+          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded }} == false
           run: |
-            echo "The job continues even further..."
+            echo "The job continues unsuccessfully..."
