@@ -47,8 +47,16 @@ jobs:
                               -environmentType ${{ steps.detectEnvironment.outputs.targetEnvironment }} 
                               -serverType Hosted
 
+        # Checks if build output was generated properly
+        - name: Check build success
+          id: checkBuildSuccess
+          run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/check-build-success.sh
+          env:
+            BUILD_TARGET: ${{ env.BUILD_TARGET }}
+
         # Builds & pushes a docker image with the server build to PlayFab's container registry
-        - name: Build & push docker image 
+        - name: Build & push docker image
+          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded }} == true
           run: bash ${GITHUB_WORKSPACE}/.github/scripts/playfab/build-docker-image.sh
           env:
             BUILD_TARGET: ${{ env.BUILD_TARGET }}
@@ -60,6 +68,7 @@ jobs:
         
         # Creates a PlayFab release with the pushed image & updates the active build for the environment
         - name: Create & upload PlayFab build
+          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded }} == true
           run: bash ${GITHUB_WORKSPACE}/.github/scripts/playfab/create-upload-build.sh
           env:
             SERVER_BUILD_NAME: ${{ vars.SERVER_BUILD_NAME }}

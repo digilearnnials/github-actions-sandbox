@@ -47,9 +47,17 @@ jobs:
                               -productType Client
                               -environmentType ${{ steps.detectEnvironment.outputs.targetEnvironment }}
                               -serverType Hosted
+        
+        # Checks if build output was generated properly
+        - name: Check build success
+          id: checkBuildSuccess
+          run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/check-build-success.sh
+          env:
+            BUILD_TARGET: ${{ env.BUILD_TARGET }}
 
         # Configures git with specific commit author and email
         - name: Configure git
+          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded }} == true
           run: bash ${GITHUB_WORKSPACE}/.github/scripts/deployment-repository/configure-git.sh
           env:
             DEPLOYMENT_REPO_COMMIT_AUTHOR: ${{ vars.DEPLOYMENT_REPO_COMMIT_AUTHOR }}
@@ -57,6 +65,7 @@ jobs:
 
         # Clones the external deployment repository
         - name: Clone repository
+          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded }} == true
           run: bash ${GITHUB_WORKSPACE}/.github/scripts/deployment-repository/clone-deployment-repository.sh
           env:
             DEPLOYMENT_REPO_URL: ${{ vars.DEPLOYMENT_REPO_URL }}
@@ -65,6 +74,7 @@ jobs:
 
         # Uses hard reset to return to first commit before pushing new build (if needed) due to size limit
         - name: Hard reset deployment branch
+          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded }} == true
           run: bash ${GITHUB_WORKSPACE}/.github/scripts/deployment-repository/hard-reset-deployment-branch.sh
           env:
             DEPLOYMENT_REPO_DEVELOPMENT_BRANCH: ${{ vars.DEPLOYMENT_REPO_DEVELOPMENT_BRANCH }}
@@ -75,6 +85,7 @@ jobs:
         
         # Copies the build, commits & pushes the changes to the deployment repository
         - name: Deploy to repository
+          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded }} == true
           run: bash ${GITHUB_WORKSPACE}/.github/scripts/deployment-repository/deploy-to-repository.sh
           env:
             BUILD_TARGET: ${{ env.BUILD_TARGET }}
@@ -83,6 +94,7 @@ jobs:
         
         # Zips the build
         - name: Zip build
+          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded }} == true
           id: zipBuild
           run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/zip-build.sh
           env:
@@ -91,6 +103,7 @@ jobs:
 
         # Uploads the build zip to Google Drive
         - name: Upload to Google Drive
+          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded }} == true
           uses: adityak74/google-drive-upload-git-action@main
           with:
             credentials: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
