@@ -43,11 +43,11 @@ jobs:
             BUILD_TARGET: ${{ env.BUILD_TARGET }}
         
         - name: Post build placeholder 1
-          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded }} == true
+          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded }}
           run: |
             echo "The job continues successfully..."
         
         - name: Post build placeholder 2
-          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded }} == false
+          if: ! ${{ steps.checkBuildSuccess.outputs.buildSucceeded }}
           run: |
             echo "The job continues unsuccessfully..."
