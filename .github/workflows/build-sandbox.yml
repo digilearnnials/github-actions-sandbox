@@ -1,0 +1,54 @@
+name: Build Sandbox
+
+on:
+  workflow_dispatch: {}
+
+env:
+  BUILD_FULL_NAME: "${{ vars.CLIENT_BUILD_NAME }}"
+  BUILD_TARGET: StandaloneWindows
+
+jobs:
+    buildAndDeployClient:
+      name: Build & deploy
+      runs-on: ubuntu-latest
+      steps:
+        
+        # Checkouts the current repository
+        - name: Checkout
+          uses: actions/checkout@v3
+          with:
+            fetch-depth: 1
+        
+        # Builds the Windows client using a given license
+        - name: Build
+          id: build
+          uses: game-ci/unity-builder@v2
+          env:
+            UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+            UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+            UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          with:
+            buildName: "${{ env.BUILD_FULL_NAME }}"
+            targetPlatform: ${{ env.BUILD_TARGET }}
+            versioning: None
+            # Set the build mehod wrong on purpose to test the skipping of post build placeholders
+            buildMethod: Digi.EditorTools.BuildScript.WrongBuildMethod
+            customParameters: -productType Client 
+                              -environmentType Development
+                              -serverType Hosted
+        
+        - name: Check build success
+          id: checkBuildSuccess
+          run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/check-build-success.sh
+          env:
+            BUILD_TARGET: ${{ env.BUILD_TARGET }}
+        
+        - name: Post build placeholder 1
+          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded }} == true
+          run: |
+            echo "The job continues..."
+        
+        - name: Post build placeholder 2
+          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded }} == true
+          run: |
+            echo "The job continues even further..."
