@@ -11,4 +11,4 @@ else
     buildSucceeded=false;
 fi
 
- echo "buildSucceeded=$buildSucceeded" >> "$GITHUB_OUTPUT"
+echo "buildSucceeded=$buildSucceeded" >> "$GITHUB_OUTPUT"
