@@ -2,7 +2,12 @@
 
 mkdir release
 
-cp -R "build/$BUILD_TARGET/$BUILD_FULL_NAME" release
+if [ "$BUILD_TARGET" = "WebGL" ]
+then
+    cp -R "build/$BUILD_TARGET/$BUILD_FULL_NAME" release
+else
+    cp -R "build/$BUILD_TARGET" release
+fi
 
 cd release || exit
 
