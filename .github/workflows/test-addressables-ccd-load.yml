@@ -5,7 +5,7 @@ on:
 
 env:
   BUILD_FULL_NAME: "${{ vars.CLIENT_BUILD_NAME }} ${{ github.ref_name }}"
-  BUILD_TARGET: WebGL
+  BUILD_TARGET: StandaloneWindows
 
 jobs:
     buildAndDeployClient:
@@ -19,7 +19,7 @@ jobs:
           with:
             fetch-depth: 1
         
-        # Builds the WebGL client using a given license
+        # Builds the Windows client using a given license
         - name: Build
           uses: game-ci/unity-builder@v2
           env:
