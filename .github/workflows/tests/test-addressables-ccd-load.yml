@@ -1,0 +1,70 @@
+name: Build & Deploy Client
+
+on:
+  workflow_call: {}
+
+env:
+  BUILD_FULL_NAME: "${{ vars.CLIENT_BUILD_NAME }} ${{ github.ref_name }}"
+  BUILD_TARGET: WebGL
+
+jobs:
+    buildAndDeployClient:
+      name: Build & deploy
+      runs-on: ubuntu-latest
+      steps:
+        
+        # Checkouts the current repository
+        - name: Checkout
+          uses: actions/checkout@v3
+          with:
+            fetch-depth: 1
+
+        # Detects in which environment the build should be deployed
+        - name: Detect environment
+          id: detectEnvironment
+          run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/detect-environment.sh
+          env:
+            VERSION_NAME: ${{ github.ref_name }}
+        
+        # Builds the WebGL client using a given license
+        - name: Build
+          uses: game-ci/unity-builder@v2
+          env:
+            UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+            UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+            UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          with:
+            buildName: "${{ env.BUILD_FULL_NAME }}"
+            targetPlatform: ${{ env.BUILD_TARGET }}
+            versioning: Tag
+            buildMethod: Digi.EditorTools.BuildScript.Build
+            customParameters: -productType Client
+                              -environmentType ${{ steps.detectEnvironment.outputs.targetEnvironment }}
+                              -serverType Hosted
+        
+        # Checks if build output was generated properly
+        - name: Check build success
+          id: checkBuildSuccess
+          run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/check-build-success.sh
+          env:
+            BUILD_TARGET: ${{ env.BUILD_TARGET }}
+        
+        # Zips the build
+        - name: Zip build
+          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded == 'true' }}
+          id: zipBuild
+          run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/zip-build.sh
+          env:
+            BUILD_TARGET: ${{ env.BUILD_TARGET }}
+            BUILD_FULL_NAME: ${{ env.BUILD_FULL_NAME }}
+
+        # Uploads the build zip to Google Drive
+        - name: Upload to Google Drive
+          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded == 'true' }}
+          uses: adityak74/google-drive-upload-git-action@main
+          with:
+            credentials: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
+            folderId: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+            filename: release/${{ steps.zipBuild.outputs.targetZipName }}.zip
+            name: ${{ steps.zipBuild.outputs.targetZipName }}.zip
+            overwrite: "true"
