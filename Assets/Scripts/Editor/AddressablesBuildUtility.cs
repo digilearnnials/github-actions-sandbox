@@ -138,14 +138,6 @@ namespace Digi.EditorTools
             
             Debug.Log("BUNDLES FINISHED UPLOADING TO CCD!");
         }
-        
-        private static void BuildAdressablesAssetBundles ()
-        {
-            AddressablesPlayerBuildResult result;
-
-            AddressableAssetSettings.CleanPlayerContent(AddressableAssetSettingsDefaultObject.Settings.ActivePlayerDataBuilder);
-            AddressableAssetSettings.BuildPlayerContent(out result);
-        }
 
         [MenuItem("Addressables' Utilities/Build and deploy bundles for current environment")]
         private static void BuildAndDeployBundlesForCurrentEnvironment ()
@@ -160,7 +152,14 @@ namespace Digi.EditorTools
                 _ = BuildAndReleaseAdressablesAssetBundles();
         }
 
-        [MenuItem("Addressables' Utilities/Load stored catalog settings")]
+        public static void BuildAdressablesAssetBundles ()
+        {
+            AddressablesPlayerBuildResult result;
+
+            AddressableAssetSettings.CleanPlayerContent(AddressableAssetSettingsDefaultObject.Settings.ActivePlayerDataBuilder);
+            AddressableAssetSettings.BuildPlayerContent(out result);
+        }
+        
         public static void LoadStoredCatalogSettings ()
         {
             string libraryCatalogSettingsFolderPath = GetLibraryCatalogSettingsFolderPath();
