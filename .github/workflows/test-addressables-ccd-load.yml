@@ -51,13 +51,9 @@ jobs:
             BUILD_TARGET: ${{ env.BUILD_TARGET }}
             BUILD_FULL_NAME: ${{ env.BUILD_FULL_NAME }}
 
-        # Uploads the build zip to Google Drive
-        - name: Upload to Google Drive
-          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded == 'true' }}
-          uses: adityak74/google-drive-upload-git-action@main
+        # Uploads the build as an artifact
+        - name: Upload artifact
+          uses: actions/upload-artifact@v3
           with:
-            credentials: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
-            folderId: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
-            filename: release/${{ steps.zipBuild.outputs.targetZipName }}.zip
-            name: ${{ steps.zipBuild.outputs.targetZipName }}.zip
-            overwrite: "true"
+            name: ${{ env.BUILD_FULL_NAME }}
+            path: ${{ steps.zipBuild.outputs.targetZipName }}
