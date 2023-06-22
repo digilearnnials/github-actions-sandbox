@@ -108,6 +108,5 @@ jobs:
           with:
             credentials: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
             folderId: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
-            filename: release/${{ steps.zipBuild.outputs.targetZipName }}.zip
-            name: ${{ steps.zipBuild.outputs.targetZipName }}.zip
+            filename: ${{ steps.zipBuild.outputs.targetZipPath }}
             overwrite: "true"

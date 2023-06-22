@@ -1,15 +1,16 @@
 #!/bin/bash
 
+releaseFolder="release"
 zipFolder=""
 
-mkdir release
+mkdir $releaseFolder
 
 if [ "$BUILD_TARGET" = "WebGL" ]
 then
-    cp -R "build/$BUILD_TARGET/$BUILD_FULL_NAME" release
+    cp -R "build/$BUILD_TARGET/$BUILD_FULL_NAME" $releaseFolder
     zipFolder=$BUILD_FULL_NAME
 else
-    cp -R "build/$BUILD_TARGET" release
+    cp -R "build/$BUILD_TARGET" $releaseFolder
     zipFolder=$BUILD_TARGET
 fi
 
@@ -21,4 +22,4 @@ zipName=${BUILD_FULL_NAME//$oldStr/$newStr}
 
 zip -r "$zipName.zip" "$zipFolder"
 
-echo "targetZipName=$zipName" >> "$GITHUB_OUTPUT"
+echo "targetZipPath=$releaseFolder/$zipName.zip" >> "$GITHUB_OUTPUT"
