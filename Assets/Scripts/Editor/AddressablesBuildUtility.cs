@@ -35,18 +35,6 @@ namespace Digi.EditorTools
             BuildPlayerWindow.DefaultBuildMethods.BuildPlayer(buildPlayerOptions);
         }
 
-        private static string GetActiveAddressablesProfileName ()
-        {
-            string activeProfileName;
-
-            AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.Settings;
-            AddressableAssetProfileSettings profileSettings = settings.profileSettings;
-            
-            activeProfileName = profileSettings.GetProfileName(settings.activeProfileId);
-
-            return activeProfileName;
-        }
-
         private static string GetBuildTargetName ()
         {
             string buildTargetName;
@@ -89,7 +77,7 @@ namespace Digi.EditorTools
             return $"{activeProfileName}_{CatalogFileName}";
         }
 
-        private static string GetLibraryCatalogSettingsFolderPath ()
+        private static string GetLibraryCatalogFolderPath ()
         {
             string folderPath;
 
@@ -103,16 +91,17 @@ namespace Digi.EditorTools
         {
             try
             {
-                string libraryCatalogSettingsFolderPath = GetLibraryCatalogSettingsFolderPath();
-                string libraryAddressablesLinkFolderPath = $"{libraryCatalogSettingsFolderPath}/{LinkFolder}";
-                string storedCatalogSettingsFolderPath = GetStoredCatalogFolderPath();
+                string libraryCatalogFolderPath = GetLibraryCatalogFolderPath();
+                string libraryLinkFolderPath = $"{libraryCatalogFolderPath}/{LinkFolder}";
+                string storedCatalogFolderPath = GetStoredCatalogFolderPath();
+                string storedCatalogForBuildTargetPath = $"{storedCatalogFolderPath}/{GetBuildTargetName()}";
 
-                if (!Directory.Exists(storedCatalogSettingsFolderPath))
-                    Directory.CreateDirectory(storedCatalogSettingsFolderPath);
+                if (!Directory.Exists(storedCatalogForBuildTargetPath))
+                    Directory.CreateDirectory(storedCatalogForBuildTargetPath);
 
-                File.Copy($"{libraryCatalogSettingsFolderPath}/{SettingsFileName}", $"{storedCatalogSettingsFolderPath}/{GetStoredSettingsFileName()}", overwrite: true);
-                File.Copy($"{libraryCatalogSettingsFolderPath}/{CatalogFileName}", $"{storedCatalogSettingsFolderPath}/{GetStoredCatalogFileName()}", overwrite: true);
-                File.Copy($"{libraryAddressablesLinkFolderPath}/{LinkFileName}", $"{storedCatalogSettingsFolderPath}/{LinkFileName}", overwrite: true);
+                File.Copy($"{libraryCatalogFolderPath}/{SettingsFileName}", $"{storedCatalogForBuildTargetPath}/{GetStoredSettingsFileName()}", overwrite: true);
+                File.Copy($"{libraryCatalogFolderPath}/{CatalogFileName}", $"{storedCatalogForBuildTargetPath}/{GetStoredCatalogFileName()}", overwrite: true);
+                File.Copy($"{libraryLinkFolderPath}/{LinkFileName}", $"{storedCatalogFolderPath}/{LinkFileName}", overwrite: true);
 
                 AssetDatabase.Refresh();
             }
@@ -126,20 +115,21 @@ namespace Digi.EditorTools
         {
             try
             {
-                string libraryCatalogSettingsFolderPath = GetLibraryCatalogSettingsFolderPath();
-                string libraryAddressablesLinkFolderPath = $"{libraryCatalogSettingsFolderPath}/{LinkFolder}";
-                string storedCatalogSettingsFolderPath = GetStoredCatalogFolderPath();
+                string libraryCatalogFolderPath = GetLibraryCatalogFolderPath();
+                string libraryLinkFolderPath = $"{libraryCatalogFolderPath}/{LinkFolder}";
+                string storedCatalogFolderPath = GetStoredCatalogFolderPath();
+                string storedCatalogForBuildTargetPath = $"{storedCatalogFolderPath}/{GetBuildTargetName()}";
 
-                if (!Directory.Exists(libraryAddressablesLinkFolderPath))
-                    Directory.CreateDirectory(libraryAddressablesLinkFolderPath);
+                if (!Directory.Exists(libraryLinkFolderPath))
+                    Directory.CreateDirectory(libraryLinkFolderPath);
 
-                string settingsJson = File.ReadAllText($"{storedCatalogSettingsFolderPath}/{GetStoredSettingsFileName()}");
-                string catalogJson = File.ReadAllText($"{storedCatalogSettingsFolderPath}/{GetStoredCatalogFileName()}");
-                string linkXml = File.ReadAllText($"{storedCatalogSettingsFolderPath}/{LinkFileName}");
+                string settingsJson = File.ReadAllText($"{storedCatalogForBuildTargetPath}/{GetStoredSettingsFileName()}");
+                string catalogJson = File.ReadAllText($"{storedCatalogForBuildTargetPath}/{GetStoredCatalogFileName()}");
+                string linkXml = File.ReadAllText($"{storedCatalogFolderPath}/{LinkFileName}");
                 
-                File.WriteAllText($"{libraryCatalogSettingsFolderPath}/{SettingsFileName}", settingsJson);
-                File.WriteAllText($"{libraryCatalogSettingsFolderPath}/{CatalogFileName}", catalogJson);
-                File.WriteAllText($"{libraryAddressablesLinkFolderPath}/{LinkFileName}", linkXml);
+                File.WriteAllText($"{libraryCatalogFolderPath}/{SettingsFileName}", settingsJson);
+                File.WriteAllText($"{libraryCatalogFolderPath}/{CatalogFileName}", catalogJson);
+                File.WriteAllText($"{libraryLinkFolderPath}/{LinkFileName}", linkXml);
             }
             catch (Exception e)
             {
@@ -147,7 +137,7 @@ namespace Digi.EditorTools
             }
         }
 
-        private static async Task BuildAndReleaseAddressablesAssetBundles ()
+        public static async Task BuildAndReleaseAddressablesAssetBundles ()
         {
             Debug.LogWarning("UPLOADING BUNDLES TO CCD. DO NOT CLOSE THE EDITOR!");
 
@@ -176,19 +166,6 @@ namespace Digi.EditorTools
             }
         }
 
-        [MenuItem("Addressables' Utilities/Build and deploy bundles for current environment")]
-        private static void BuildAndDeployBundlesForCurrentEnvironment ()
-        {
-            string activeProfileName = GetActiveAddressablesProfileName();
-            string promptTitle = "Addressables' Deployment to CCD";
-            string promptMessage = $"You are about to update the contents of the {activeProfileName} bucket. Are you absolutely sure?";
-            string promptOk = "Yes"; 
-            string promptCancel = "No"; 
-
-            if (EditorUtility.DisplayDialog(promptTitle, promptMessage, promptOk, promptCancel))
-                _ = BuildAndReleaseAddressablesAssetBundles();
-        }
-
         public static void BuildAddressablesAssetBundles ()
         {
             AddressablesPlayerBuildResult result;
@@ -199,12 +176,32 @@ namespace Digi.EditorTools
         
         public static void LoadStoredCatalogSettings ()
         {
-            string libraryCatalogSettingsFolderPath = GetLibraryCatalogSettingsFolderPath();
+            string libraryCatalogSettingsFolderPath = GetLibraryCatalogFolderPath();
 
             if (Directory.Exists(libraryCatalogSettingsFolderPath))
                 Directory.CreateDirectory(libraryCatalogSettingsFolderPath);
 
             LoadCatalogSettings();
+        }
+
+        public static string GetActiveAddressablesProfileName ()
+        {
+            string activeProfileName;
+
+            AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.Settings;
+            AddressableAssetProfileSettings profileSettings = settings.profileSettings;
+            
+            activeProfileName = profileSettings.GetProfileName(settings.activeProfileId);
+
+            return activeProfileName;
+        }
+
+        public static void SetActiveProfile (string environmentName)
+        {
+            AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.Settings;
+            AddressableAssetProfileSettings profileSettings = settings.profileSettings;
+            
+            settings.activeProfileId = profileSettings.GetProfileId($"{environmentName}_{GetBuildTargetName()}");
         }
     }
 }

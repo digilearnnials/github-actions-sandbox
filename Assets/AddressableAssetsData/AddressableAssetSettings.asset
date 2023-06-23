@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: cecef2d02c07cb84f9471b009ea931dc
   m_CachedHash:
     serializedVersion: 2
-    Hash: 7e50cbfad482fc2877ed5cb62555a7d7
+    Hash: 00000000000000000000000000000000
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 1
   m_BundleLocalCatalog: 0
@@ -69,7 +69,7 @@ MonoBehaviour:
         m_Value: http://[PrivateIpAddress]:[HostingServicePort]
     - m_InheritedParent: 
       m_Id: 740c3ac69dd9c044fa673a1189991f11
-      m_ProfileName: Development
+      m_ProfileName: Development_Windows
       m_Values:
       - m_Id: c304340303688de4595990dbd357de70
         m_Value: '[UnityEditor.EditorUserBuildSettings.activeBuildTarget]'
@@ -83,7 +83,7 @@ MonoBehaviour:
         m_Value: https://1af9a334-e3ab-47e8-9854-74852396d51c.client-api.unity3dusercontent.com/client_api/v1/environments/099bf729-5dbf-4fbf-b91d-97ff282d85bc/buckets/7222c43f-e192-4fba-8ea7-621fc2e8cafc/release_by_badge/latest/entry_by_path/content/?path=
     - m_InheritedParent: 
       m_Id: 5f9e65cbdd457f54a8b23d5b031ee9b2
-      m_ProfileName: Production
+      m_ProfileName: Production_Windows
       m_Values:
       - m_Id: c304340303688de4595990dbd357de70
         m_Value: '[UnityEditor.EditorUserBuildSettings.activeBuildTarget]'
@@ -92,9 +92,37 @@ MonoBehaviour:
       - m_Id: 6adc1b44c8967254ba6b6dd8576ab870
         m_Value: '{UnityEngine.AddressableAssets.Addressables.RuntimePath}/[BuildTarget]'
       - m_Id: 86a1e3c309e57f44caf6dec504ab011e
-        m_Value: CCDBuildData/ee0fbf5b-fda5-414d-9f1e-4f93625e213f/cbba9605-53e8-4324-91aa-4dd1b92ece9c/latest
+        m_Value: CCDBuildData/ee0fbf5b-fda5-414d-9f1e-4f93625e213f/6dad2a5b-b20f-4d0d-a3c3-21e032c7a901/latest
       - m_Id: dd8a73f7fea88c841827ff767e89a786
-        m_Value: https://1af9a334-e3ab-47e8-9854-74852396d51c.client-api.unity3dusercontent.com/client_api/v1/environments/ee0fbf5b-fda5-414d-9f1e-4f93625e213f/buckets/cbba9605-53e8-4324-91aa-4dd1b92ece9c/release_by_badge/latest/entry_by_path/content/?path=
+        m_Value: https://1af9a334-e3ab-47e8-9854-74852396d51c.client-api.unity3dusercontent.com/client_api/v1/environments/ee0fbf5b-fda5-414d-9f1e-4f93625e213f/buckets/6dad2a5b-b20f-4d0d-a3c3-21e032c7a901/release_by_badge/latest/entry_by_path/content/?path=
+    - m_InheritedParent: 
+      m_Id: 334d7861e8f546d4892409ba37b02025
+      m_ProfileName: Development_WebGL
+      m_Values:
+      - m_Id: c304340303688de4595990dbd357de70
+        m_Value: '[UnityEditor.EditorUserBuildSettings.activeBuildTarget]'
+      - m_Id: ca2395195b3a68049862f1fb7dddc647
+        m_Value: '[UnityEngine.AddressableAssets.Addressables.BuildPath]/[BuildTarget]'
+      - m_Id: 6adc1b44c8967254ba6b6dd8576ab870
+        m_Value: '{UnityEngine.AddressableAssets.Addressables.RuntimePath}/[BuildTarget]'
+      - m_Id: 86a1e3c309e57f44caf6dec504ab011e
+        m_Value: CCDBuildData/099bf729-5dbf-4fbf-b91d-97ff282d85bc/3fe71587-d5a5-4dbd-b288-ad19ade607b3/latest
+      - m_Id: dd8a73f7fea88c841827ff767e89a786
+        m_Value: https://1af9a334-e3ab-47e8-9854-74852396d51c.client-api.unity3dusercontent.com/client_api/v1/environments/099bf729-5dbf-4fbf-b91d-97ff282d85bc/buckets/3fe71587-d5a5-4dbd-b288-ad19ade607b3/release_by_badge/latest/entry_by_path/content/?path=
+    - m_InheritedParent: 
+      m_Id: 8c08f4c992f72e4469c954f8a798f69f
+      m_ProfileName: Production_WebGL
+      m_Values:
+      - m_Id: c304340303688de4595990dbd357de70
+        m_Value: '[UnityEditor.EditorUserBuildSettings.activeBuildTarget]'
+      - m_Id: ca2395195b3a68049862f1fb7dddc647
+        m_Value: '[UnityEngine.AddressableAssets.Addressables.BuildPath]/[BuildTarget]'
+      - m_Id: 6adc1b44c8967254ba6b6dd8576ab870
+        m_Value: '{UnityEngine.AddressableAssets.Addressables.RuntimePath}/[BuildTarget]'
+      - m_Id: 86a1e3c309e57f44caf6dec504ab011e
+        m_Value: CCDBuildData/ee0fbf5b-fda5-414d-9f1e-4f93625e213f/2f2f741a-fd6b-4b4a-9027-535a73961dc1/latest
+      - m_Id: dd8a73f7fea88c841827ff767e89a786
+        m_Value: https://1af9a334-e3ab-47e8-9854-74852396d51c.client-api.unity3dusercontent.com/client_api/v1/environments/ee0fbf5b-fda5-414d-9f1e-4f93625e213f/buckets/2f2f741a-fd6b-4b4a-9027-535a73961dc1/release_by_badge/latest/entry_by_path/content/?path=
     m_ProfileEntryNames:
     - m_Id: c304340303688de4595990dbd357de70
       m_Name: BuildTarget
