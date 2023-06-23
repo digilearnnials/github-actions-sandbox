@@ -163,7 +163,7 @@ namespace Digi.EditorTools
             if (productType == ProductType.Client && serverType == ServerType.Hosted)
                 AddressablesBuildUtility.LoadStoredCatalogSettings();
             else
-                AddressablesBuildUtility.BuildAdressablesAssetBundles();
+                AddressablesBuildUtility.BuildAddressablesAssetBundles();
         }
 
         private static Dictionary<string, string> ParseCommandLineArguments ()
