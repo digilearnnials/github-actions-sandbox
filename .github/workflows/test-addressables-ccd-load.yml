@@ -5,7 +5,7 @@ on:
 
 env:
   BUILD_FULL_NAME: "${{ vars.CLIENT_BUILD_NAME }} ${{ github.ref_name }}"
-  BUILD_TARGET: StandaloneWindows
+  BUILD_TARGET: WebGL
 
 jobs:
     buildAndDeployClient:
@@ -19,7 +19,7 @@ jobs:
           with:
             fetch-depth: 1
         
-        # Builds the Windows client using a given license
+        # Builds the client using a given license
         - name: Build
           uses: game-ci/unity-builder@v2
           env:
@@ -41,19 +41,10 @@ jobs:
           run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/check-build-success.sh
           env:
             BUILD_TARGET: ${{ env.BUILD_TARGET }}
-        
-        # Zips the build
-        - name: Zip build
-          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded == 'true' }}
-          id: zipBuild
-          run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/zip-build.sh
-          env:
-            BUILD_TARGET: ${{ env.BUILD_TARGET }}
-            BUILD_FULL_NAME: ${{ env.BUILD_FULL_NAME }}
 
         # Uploads the build as an artifact
         - name: Upload artifact
           uses: actions/upload-artifact@v3
           with:
             name: ${{ env.BUILD_FULL_NAME }}
-            path: ${{ steps.zipBuild.outputs.targetZipPath }}
+            path: build/${{ env.BUILD_TARGET }}/${{ env.BUILD_FULL_NAME }}
