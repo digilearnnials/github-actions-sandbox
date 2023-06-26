@@ -160,8 +160,10 @@ namespace Digi.EditorTools
             BuildConfigurator.SetEnvironmentType(environmentType);
             BuildConfigurator.SetServerType(serverType);
 
+            AddressablesBuildUtility.SetActiveProfile(environmentType.ToString(), options["buildTarget"]);
+
             if (productType == ProductType.Client && serverType == ServerType.Hosted)
-                AddressablesBuildUtility.LoadStoredCatalogSettings();
+                AddressablesBuildUtility.LoadStoredCatalogSettings(options["buildTarget"]);
             else
                 AddressablesBuildUtility.BuildAddressablesAssetBundles();
         }

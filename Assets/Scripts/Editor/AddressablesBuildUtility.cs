@@ -27,8 +27,8 @@ namespace Digi.EditorTools
         {
             bool hasRemoteCatalog = (BuildConfigurator.GetCurrentProductType() == ProductType.Client);
 
-            if (!hasRemoteCatalog)
-                LoadCatalogSettings();
+            if (hasRemoteCatalog)
+                LoadStoredCatalogSettings(GetBuildTargetName());
             else
                 BuildAddressablesAssetBundles();
 
@@ -77,12 +77,14 @@ namespace Digi.EditorTools
             return $"{activeProfileName}_{CatalogFileName}";
         }
 
-        private static string GetLibraryCatalogFolderPath ()
+        private static string GetLibraryCatalogFolderPath (string buildTargetName = null)
         {
             string folderPath;
 
+            buildTargetName ??= GetBuildTargetName(); 
+
             folderPath = Application.dataPath.Replace("/Assets", string.Empty);
-            folderPath += $"/Library/com.unity.addressables/aa/{GetBuildTargetName()}";
+            folderPath += $"/Library/com.unity.addressables/aa/{buildTargetName}";
 
             return folderPath;
         }
@@ -111,14 +113,14 @@ namespace Digi.EditorTools
             }
         }
 
-        private static void LoadCatalogSettings ()
+        private static void LoadCatalogSettings (string buildTargetName)
         {
             try
             {
-                string libraryCatalogFolderPath = GetLibraryCatalogFolderPath();
+                string libraryCatalogFolderPath = GetLibraryCatalogFolderPath(buildTargetName);
                 string libraryLinkFolderPath = $"{libraryCatalogFolderPath}/{LinkFolder}";
                 string storedCatalogFolderPath = GetStoredCatalogFolderPath();
-                string storedCatalogForBuildTargetPath = $"{storedCatalogFolderPath}/{GetBuildTargetName()}";
+                string storedCatalogForBuildTargetPath = $"{storedCatalogFolderPath}/{buildTargetName}";
 
                 if (!Directory.Exists(libraryLinkFolderPath))
                     Directory.CreateDirectory(libraryLinkFolderPath);
@@ -174,14 +176,9 @@ namespace Digi.EditorTools
             AddressableAssetSettings.BuildPlayerContent(out result);
         }
         
-        public static void LoadStoredCatalogSettings ()
+        public static void LoadStoredCatalogSettings (string buildTargetName)
         {
-            string libraryCatalogSettingsFolderPath = GetLibraryCatalogFolderPath();
-
-            if (Directory.Exists(libraryCatalogSettingsFolderPath))
-                Directory.CreateDirectory(libraryCatalogSettingsFolderPath);
-
-            LoadCatalogSettings();
+            LoadCatalogSettings(buildTargetName);
         }
 
         public static string GetActiveAddressablesProfileName ()
@@ -196,12 +193,14 @@ namespace Digi.EditorTools
             return activeProfileName;
         }
 
-        public static void SetActiveProfile (string environmentName)
+        public static void SetActiveProfile (string environmentName, string buildTargetName = null)
         {
             AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.Settings;
             AddressableAssetProfileSettings profileSettings = settings.profileSettings;
+
+            buildTargetName ??= GetBuildTargetName();
             
-            settings.activeProfileId = profileSettings.GetProfileId($"{environmentName}_{GetBuildTargetName()}");
+            settings.activeProfileId = profileSettings.GetProfileId($"{environmentName}_{buildTargetName}");
         }
     }
 }
