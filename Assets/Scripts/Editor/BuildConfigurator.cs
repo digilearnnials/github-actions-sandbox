@@ -106,7 +106,6 @@ namespace Digi.EditorTools
 
                     case ProductType.Server:
                         
-                        EditorUserBuildSettings.SwitchActiveBuildTarget(BuildTargetGroup.Standalone, BuildTarget.StandaloneLinux64);
                         EditorUserBuildSettings.standaloneBuildSubtarget = StandaloneBuildSubtarget.Server;
                         targetScenes = settings.ServerScenes;
                         break;

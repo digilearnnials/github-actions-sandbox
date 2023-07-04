@@ -132,7 +132,7 @@ namespace Digi.EditorTools
             }
         }
 
-        private static void ConfigureProductOptions (Dictionary<string, string> options)
+        private static void ConfigureAdditionalOptions (Dictionary<string, string> options)
         {
             ProductType productType = options["productType"] switch
             {
@@ -159,6 +159,13 @@ namespace Digi.EditorTools
             BuildConfigurator.SetProductType(productType);
             BuildConfigurator.SetEnvironmentType(environmentType);
             BuildConfigurator.SetServerType(serverType);
+
+            AddressablesBuildUtility.SetActiveProfile(environmentType.ToString(), options["buildTarget"]);
+
+            if (productType == ProductType.Client && serverType == ServerType.Hosted)
+                AddressablesBuildUtility.LoadStoredCatalogSettings(options["buildTarget"]);
+            else
+                AddressablesBuildUtility.BuildAddressablesAssetBundles();
         }
 
         private static Dictionary<string, string> ParseCommandLineArguments ()
@@ -264,7 +271,7 @@ namespace Digi.EditorTools
             ConfigureVersion(options);
             ConfigureSplashScreen();
             ConfigureBuildTarget(buildTarget, options);
-            ConfigureProductOptions(options);
+            ConfigureAdditionalOptions(options);
 
             ExecuteBuild(buildTarget, standaloneBuildSubtarget, options["customBuildPath"]);
         }

@@ -1,4 +1,4 @@
-name: Build Sandbox
+name: Test Check Build Success
 
 on:
   workflow_dispatch: {}
