@@ -1,0 +1,25 @@
+name: Test LFS Check
+
+on:
+  workflow_dispatch: {}
+
+env:
+  BUILD_TARGET: StandaloneWindows
+
+jobs:
+    buildAndDeployClient:
+      name: Build & deploy
+      runs-on: ubuntu-latest
+      steps:
+
+        # Checks if the project is using LFS
+        - name: Check LFS
+          id: checkLFS
+          run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/check-lfs.sh
+        
+        # Checkouts the current repository
+        - name: Checkout
+          uses: actions/checkout@v3
+          with:
+            fetch-depth: 1
+            lfs: $ {{ steps.checkLFS.outputs.isUsingLFS == 'true'}}
