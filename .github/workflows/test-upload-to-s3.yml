@@ -1,0 +1,46 @@
+name: Test Upload to S3
+
+on:
+  workflow_dispatch: {}
+
+env:
+  BUILD_FULL_NAME: "${{ vars.CLIENT_BUILD_NAME }}"
+  BUILD_TARGET: WebGL
+
+jobs:
+    buildAndDeployClient:
+      name: Build & deploy
+      runs-on: ubuntu-latest
+      steps:
+        
+        # Checkouts the current repository
+        - name: Checkout
+          uses: actions/checkout@v3
+          with:
+            fetch-depth: 1
+        
+        # Builds the Windows client using a given license
+        - name: Build
+          id: build
+          uses: game-ci/unity-builder@v2
+          env:
+            UNITY_SERIAL: ${{ secrets.UNITY_SERIAL }}
+            UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+            UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          with:
+            buildName: "${{ env.BUILD_FULL_NAME }}"
+            targetPlatform: ${{ env.BUILD_TARGET }}
+            versioning: None
+            buildMethod: Digi.EditorTools.BuildScript.Build
+            customParameters: -productType Client 
+                              -environmentType Development
+                              -serverType Hosted
+        
+        # Uploads the build to an Amazon S3 bucket
+        - name: Upload to S3
+          uses: shallwefootball/s3-upload-action@master
+          with:
+            aws_key_id: ${{ secrets.AWS_KEY_ID }}
+            aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+            aws_bucket: ${{ secrets.AWS_BUCKET }}
+            source_dir: "build/$BUILD_TARGET/$BUILD_FULL_NAME"
