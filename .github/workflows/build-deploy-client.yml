@@ -18,6 +18,10 @@ jobs:
           uses: actions/checkout@v3
           with:
             fetch-depth: 1
+        
+        # Downloads LFS files if the project is using them
+        - name: Check LFS download
+          run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/check-lfs-download.sh
 
         # Detects in which environment the build should be deployed
         - name: Detect environment
