@@ -22,13 +22,6 @@ jobs:
         # Downloads LFS files if the project is using them
         - name: Check LFS download
           run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/check-lfs-download.sh
-
-        # Detects in which environment the build should be deployed
-        - name: Detect environment
-          id: detectEnvironment
-          run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/detect-environment.sh
-          env:
-            VERSION_NAME: ${{ github.ref_name }}
         
         # Builds the WebGL client using a given license
         - name: Build
@@ -43,7 +36,7 @@ jobs:
             versioning: Tag
             buildMethod: Digi.EditorTools.BuildScript.Build
             customParameters: -productType Client
-                              -environmentType ${{ steps.detectEnvironment.outputs.targetEnvironment }}
+                              -environmentType Development
                               -serverType Hosted
         
         # Checks if build output was generated properly
