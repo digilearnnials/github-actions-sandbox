@@ -27,7 +27,7 @@ jobs:
         - name: Build
           uses: game-ci/unity-builder@v2
           env:
-            UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+            #UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
             UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
             UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
           with:
@@ -39,28 +39,18 @@ jobs:
                               -environmentType Development
                               -serverType Hosted
         
-        # Checks if build output was generated properly
-        - name: Check build success
-          id: checkBuildSuccess
-          run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/check-build-success.sh
-          env:
-            BUILD_TARGET: ${{ env.BUILD_TARGET }}
-        
         # Zips the build
         - name: Zip build
-          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded }} == true
+          if: ${{ success() }}
           id: zipBuild
           run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/zip-build.sh
           env:
             BUILD_TARGET: ${{ env.BUILD_TARGET }}
             BUILD_FULL_NAME: ${{ env.BUILD_FULL_NAME }}
 
-        # Uploads the build zip to Google Drive
-        - name: Upload to Google Drive
-          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded }} == true
-          uses: adityak74/google-drive-upload-git-action@main
+        # Upload artifact
+        - name: Upload artifact
+          uses: actions/upload-artifact@v2
           with:
-            credentials: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
-            folderId: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
-            filename: ${{ steps.zipBuild.outputs.targetZipPath }}
-            overwrite: "true"
+            name: ${{ env.BUILD_FULL_NAME }}
+            path: ${{ steps.zipBuild.outputs.targetZipPath }}
