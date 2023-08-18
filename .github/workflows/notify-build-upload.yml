@@ -1,4 +1,4 @@
-name: Build & Deploy Client
+name: Notify Build Upload
 
 on:
   workflow_call: {}
