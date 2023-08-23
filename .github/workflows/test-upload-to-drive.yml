@@ -1,0 +1,58 @@
+name: Test Upload to Drive
+
+on:
+  workflow_dispatch: {}
+
+env:
+  BUILD_FULL_NAME: "${{ vars.CLIENT_BUILD_NAME }}"
+  BUILD_TARGET: StandaloneWindows
+
+jobs:
+    buildAndDeployClient:
+      name: Build & deploy
+      runs-on: ubuntu-latest
+      steps:
+        
+        # Checkouts the current repository
+        - name: Checkout
+          uses: actions/checkout@v3
+          with:
+            fetch-depth: 1
+        
+        # Builds the Windows client using a given license
+        - name: Build
+          id: build
+          uses: game-ci/unity-builder@v2
+          env:
+            UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          with:
+            buildName: "${{ env.BUILD_FULL_NAME }}"
+            targetPlatform: ${{ env.BUILD_TARGET }}
+            versioning: None
+            buildMethod: Digi.EditorTools.BuildScript.Build
+            customParameters: -productType Client 
+                              -environmentType Development
+                              -serverType Hosted
+
+        # Zips the build
+        - name: Zip build
+          if: ${{ steps.checkBuildSuccess.outputs.buildSucceeded }} == true
+          id: zipBuild
+          run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/zip-build.sh
+          env:
+            BUILD_TARGET: ${{ env.BUILD_TARGET }}
+            BUILD_FULL_NAME: ${{ env.BUILD_FULL_NAME }}
+        
+        # Uploads the build to Google Drive
+        - name: Upload build to Google Drive
+          uses: Jodebu/upload-to-drive@master
+          id: driveUpload
+          with:
+            target: ${{ steps.zipBuild.outputs.targetZipPath }}
+            credentials: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_CREDENTIALS }}
+            folder: ${{ secrets.GOOGLE_DRIVE_FOLDER_ID }}
+
+        # Log the Google Drive download link
+        - name: Log download link
+          run: |
+            echo "The link is: ${{ steps.driveUpload.outputs.link }}"
