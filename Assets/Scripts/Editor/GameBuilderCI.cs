@@ -12,13 +12,11 @@ namespace Digi.Utilities.Deploy
         private const string ProjectPathArg = "projectPath";
         private const string BuildTargetArg = "buildTarget";
         private const string CustomBuildPathArg = "customBuildPath";
-        private const string CustomBuildNameArg = "customBuildName";
         private const string ScriptingBackendArg = "scriptingBackend";
 
 
         private static Dictionary<string, string> GetValidatedOptions ()
-        {            
-            const string defaultCustomBuildName = "TestBuild";
+        {  
             const string defaultScriptingBackendName = "IL2CPP";
 
             string buildTarget;
@@ -48,12 +46,6 @@ namespace Digi.Utilities.Deploy
                 Console.WriteLine($"Missing argument -{CustomBuildPathArg}");
                 EditorApplication.Exit(130);
             }
-            
-            if (!validatedOptions.TryGetValue(CustomBuildNameArg, out string customBuildName) || string.IsNullOrEmpty(customBuildName))
-            {
-                Console.WriteLine($"Missing or invalid argument -{CustomBuildNameArg}; defaulting to {defaultCustomBuildName}.");
-                validatedOptions.Add(CustomBuildNameArg, defaultCustomBuildName);
-            }
 
             if (!validatedOptions.TryGetValue(ScriptingBackendArg, out string _))
             {
@@ -78,7 +70,16 @@ namespace Digi.Utilities.Deploy
         {
             Dictionary<string, string> providedArguments = new Dictionary<string, string>();
             
-            string[] args = Environment.GetCommandLineArgs();
+            string[] rawArgs = Environment.GetCommandLineArgs();
+            List<string> processedArgs = new List<string>();
+
+            for (int i = 0; i < rawArgs.Length; i++)
+            {
+                string[] subArgs = rawArgs[i].Split(" ");
+
+                for (int j = 0; j < subArgs.Length; j++)
+                    processedArgs.Add(subArgs[j]);
+            }
 
             Console.WriteLine($"{Environment.NewLine}" +
                               $"###########################{Environment.NewLine}" +
@@ -86,15 +87,15 @@ namespace Digi.Utilities.Deploy
                               $"###########################{Environment.NewLine}" +
                               $"{Environment.NewLine}");
 
-            for (int current = 0, next = 1; current < args.Length; current++, next++)
+            for (int current = 0, next = 1; current < processedArgs.Count; current++, next++)
             {                
-                if (!args[current].StartsWith("-")) 
+                if (!processedArgs[current].StartsWith("-")) 
                     continue;
                 
-                string flag = args[current].TrimStart('-');
+                string flag = processedArgs[current].TrimStart('-');
 
-                bool flagHasValue = next < args.Length && !args[next].StartsWith("-");
-                string value = flagHasValue ? args[next].TrimStart('-') : "";
+                bool flagHasValue = (next < processedArgs.Count && !processedArgs[next].StartsWith("-"));
+                string value = (flagHasValue) ? processedArgs[next] : "";
                 string displayValue = "\"" + value + "\"";
 
                 Console.WriteLine($"Found flag \"{flag}\" with value {displayValue}.");
