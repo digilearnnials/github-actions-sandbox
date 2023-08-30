@@ -1,0 +1,10 @@
+name: Build & Deploy (Liberators' Test)
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+    buildAndDeployClient:
+      name: Build & deploy client
+      uses: ./.github/workflows/liberators-build-deploy-client.yml
+      secrets: inherit
