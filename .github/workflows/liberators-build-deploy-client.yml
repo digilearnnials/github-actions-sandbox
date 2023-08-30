@@ -40,6 +40,16 @@ jobs:
             versioning: None
             buildMethod: Digi.Utilities.Deploy.GameBuilderCI.Build
             customParameters: -scriptingBackend IL2CPP
+
+        # Removes uneeded standalone build files
+        - name: Remove Standalone build files
+          run: bash ${GITHUB_WORKSPACE}/.github/scripts/common/remove-standalone-build-files.sh
+          shell: bash
+          env:
+            BUILD_FULL_NAME: ${{ env.BUILD_FULL_NAME }}
+            BUILD_TARGET: ${{ env.BUILD_TARGET }}
+            DO_NOT_SHIP_FOLDER_SUFFIX: ${{ vars.DO_NOT_SHIP_FOLDER_SUFFIX }}
+            CRASH_HANDLER_FILE_NAME: ${{ vars.CRASH_HANDLER_FILE_NAME }}
         
         # Compresses the build folder as zip
         - name: Zip build
